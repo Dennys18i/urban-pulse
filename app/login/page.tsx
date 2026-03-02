@@ -8,9 +8,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full bg-green-dark flex justify-center items-center font-montaga relative">
       <div className="container h-full flex flex-col justify-center items-center z-20">
-        <h1 className="font-slab text-5xl text-center text-white mb-10 text-shadow-sm text-shadow-white/10">
-          Urban Pulse
-        </h1>
 
         <LoginForm />
       </div>
