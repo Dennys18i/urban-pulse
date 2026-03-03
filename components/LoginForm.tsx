@@ -19,7 +19,7 @@ export default function LoginForm() {
 
     try {
       const endpoint = activeTab === "login" ? "login" : "register";
-      const res = await fetch(`https://localhost:7036/api/auth/${endpoint}`, {
+      const res = await fetch(`http://localhost:5248/api/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role: "User" }),
