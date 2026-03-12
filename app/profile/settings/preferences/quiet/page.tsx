@@ -22,12 +22,12 @@ export default function QuietHoursPage() {
 
   return (
     <ProfilePageTemplate title="Quiet Hours">
-      <div className="w-full flex flex-col justify-center items-center gap-17">
+      <div className="w-full flex flex-col justify-center items-center gap-12">
         <section className="w-full">
           <h2 className="text-lg">Certain hours</h2>
           <div className="w-full h-px bg-[#383838] my-4"></div>
 
-          <div className="w-full flex justify-between items-center mb-8 gap-1">
+          <div className="w-full flex justify-between items-center mb-6 gap-1">
             {days.map((day, index) => (
               <button
                 key={`certain-${index}`}
@@ -45,8 +45,8 @@ export default function QuietHoursPage() {
             ))}
           </div>
 
-          <div className="flex w-full justify-between items-center mb-8">
-            <div className="w-55 max-w-[48%] flex flex-col gap-2">
+          <div className="flex w-full justify-between items-center mb-6 gap-2">
+            <div className="w-45 max-w-[47%] flex flex-col gap-2">
               <label className="text-xs tracking-wide uppercase">Start</label>
               <input
                 type="time"
@@ -54,7 +54,7 @@ export default function QuietHoursPage() {
                 className="h-13 w-full bg-secondary border border-green-light rounded-lg text-center text-2xl text-gray-400 outline-none focus:text-white"
               />
             </div>
-            <div className="w-55 max-w-[48%] flex flex-col gap-2">
+            <div className="w-45 max-w-[47%] flex flex-col gap-2">
               <label className="text-xs tracking-wide uppercase">End</label>
               <input
                 type="time"
@@ -65,19 +65,17 @@ export default function QuietHoursPage() {
           </div>
 
           <div className="w-full flex justify-center items-center">
-            <button className="w-55 h-10 bg-green-light text-black font-medium rounded-xl cursor-pointer">
+            <button className="w-55 h-10 bg-green-light text-black font-medium rounded-2xl cursor-pointer">
               SAVE
             </button>
           </div>
         </section>
 
-        {/* --- Secțiunea: All day --- */}
         <section className="w-full mt-4">
           <h2 className="text-lg">All Day</h2>
           <div className="w-full h-px bg-[#383838] my-4"></div>
 
-          {/* Selector Zile */}
-          <div className="w-full flex justify-between items-center mb-8 gap-1">
+          <div className="w-full flex justify-between items-center mb-6 gap-1">
             {days.map((day, index) => (
               <button
                 key={`all-${index}`}
@@ -96,14 +94,13 @@ export default function QuietHoursPage() {
           </div>
 
           <div className="w-full flex justify-center items-center">
-            <button className="w-55 h-10 bg-green-light text-black font-medium rounded-xl cursor-pointer">
+            <button className="w-55 h-10 bg-green-light text-black font-medium rounded-2xl cursor-pointer">
               SAVE
             </button>
           </div>
         </section>
 
-        {/* Footer text */}
-        <p className="text-[#808080] text-sm mt-8 leading-relaxed">
+        <p className="text-[#808080] text-sm leading-relaxed">
           * Choose when to mute alerts from users in need
         </p>
       </div>

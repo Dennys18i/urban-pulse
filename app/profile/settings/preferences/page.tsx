@@ -5,7 +5,7 @@ import ThemeSelector from "@/components/ui/profile/ThemeSelector";
 export default function PreferencesPage() {
   return (
     <ProfilePageTemplate title="Preferences">
-      <div className="w-full flex flex-col justify-center items-center gap-17">
+      <div className="w-full flex flex-col justify-center items-center gap-12">
         <section className="w-full">
           <h2 className="text-lg">Notifications & Alerts</h2>
           <div className="w-full h-px bg-[#383838] my-4"></div>
