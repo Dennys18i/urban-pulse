@@ -23,6 +23,7 @@ export default function Settings() {
         
         <div className="w-full flex flex-col justify-center items-center gap-3">
           <ProfileSettingsLink text="edit" />
+          <ProfileSettingsLink text="myposts" />
           <ProfileSettingsLink text="personal" />
           <ProfileSettingsLink text="security" />
           <ProfileSettingsLink text="saved" />

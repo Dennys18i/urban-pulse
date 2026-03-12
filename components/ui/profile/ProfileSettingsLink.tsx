@@ -3,6 +3,7 @@ import {
   Bookmark,
   ChevronRight,
   Clock,
+  LayoutGrid,
   Paintbrush,
   Pencil,
   Radar,
@@ -11,7 +12,7 @@ import {
 import Link from "next/link";
 
 interface ProfileSettingsLinkProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  text: "edit" | "personal" | "security" | "saved" | "preferences" | "quiet" | "distance";
+  text: "edit" | "myposts" | "personal" | "security" | "saved" | "preferences" | "quiet" | "distance";
 }
 
 export default function ProfileSettingsLink({
@@ -23,6 +24,11 @@ export default function ProfileSettingsLink({
       route: "./settings/edit",
       icon: Pencil,
       pageName: "Edit Profile",
+    },
+    myposts: {
+      route: "./settings/myposts",
+      icon: LayoutGrid,
+      pageName: "My Posts",
     },
     personal: {
       route: "./settings/personal",
