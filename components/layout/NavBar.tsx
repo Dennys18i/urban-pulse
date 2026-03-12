@@ -12,8 +12,8 @@ export default function NavBar() {
   }
 
   return (
-    <div className="h-[8vh] w-full bg-black fixed bottom-0">
-      <nav className="w-full h-full flex justify-between items-center p-8">
+    <div className="h-[8vh] w-full bg-black fixed bottom-0 flex justify-center items-center">
+      <nav className="container h-full flex justify-between items-center px-5">
         <Link href="/dashboard">
           <Home
             size={28}
