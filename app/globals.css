@@ -2,6 +2,10 @@
 
 @theme {
   --color-green-light: #4ade80;
+  --color-yellow-primary: #FFF081;
+  --color-yellow-secondary: #FFF7BA;
+
+  --color-red-emergency: #A53A3A;
   
   --color-weather-nice: #5DC786;
   --color-weather-gloomy: #F6FC82;
@@ -10,10 +14,11 @@
   --color-safety-dark: #860012;
 
   --color-background: #0a0a0a;
+  --color-secondary: #252525;
   --color-foreground: #ffffff;
 
-  --font-sans: var(--font-dm-sans);
-  --font-serif: var(--font-playfair);
+  --font-montagu: var(--font-montagu);
+  --font-inter: var(--font-inter-next);
 
   --animate-fade-up: fadeUp 0.4s ease both;
 

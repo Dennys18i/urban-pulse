@@ -1,103 +1,152 @@
-"use client";
-
-import { Pencil, Star } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-export default function Profile() {
-  const router = useRouter();
-
+export default function ProfilePage() {
   return (
-    <>
-      <div className="flex flex-col items-center mb-7">
-        <div className="w-46 h-46 rounded-full mb-4">
+    <div className="w-full flex flex-col gap-12 mt-7">
+      <section className="w-full flex justify-around items-center">
+        <div className="size-35 rounded-full overflow-hidden">
           <Image
             src="/profile.png"
-            width={184}
-            height={184}
-            alt="profile_picture"
+            alt="Greta Bennett"
+            width={140}
+            height={140}
+            className="object-cover w-full h-full"
           />
         </div>
 
-        <h1 className="text-2xl font-extrabold text-center leading-[1.15] mb-4">
-          Greta
-          <br />
-          Bennett
-        </h1>
+        <div className="flex flex-col gap-3">
+          <h1 className="text-2xl font-bold font-montagu text-center leading-tight">
+            Greta
+            <br />
+            Bennett
+          </h1>
 
-        <button className="flex items-center justify-center gap-2 bg-green-light text-black px-5 py-2 rounded-full text-[14px] font-semibold hover:bg-[#d4d4d4] transition-colors mb-6">
-          <Pencil className="w-[15px] h-[15px]" strokeWidth={2.5} />
-          Edit profile
-        </button>
+          <div className="flex justify-center items-center rounded-full px-3 py-1.5 h-8 bg-linear-to-b from-[#FFFADC]/50 to-[#FFF197]/50 shadow-[0px_11.3915px_22.3363px_rgba(255,227,42,0.19),inset_0px_-2px_1px_rgba(255,241,151,0.4)] backdrop-blur-[2px]">
+            {[1, 2, 3].map((i) => (
+              <svg
+                key={`full-${i}`}
+                className="w-5 h-5 text-yellow-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ))}
 
-        <div className="text-[13px] text-foreground/80 leading-[1.6] flex gap-2 w-full">
-          <span className="text-foreground whitespace-nowrap">Bio:</span>
-          <p>
-            🌿 Plant lover | Yard Designer | Creator
-            <br />I like to connect with people and give a lot of help!
-          </p>
-        </div>
-      </div>
-
-      <div className="w-full h-px bg-foreground/20 mb-8" />
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="flex flex-col gap-4">
-          <div className="bg-[#fcf5c7] text-black rounded-[20px] p-5 flex flex-col items-center justify-center h-[150px]">
-            <span className="font-bold text-[14px] mb-2">Connections</span>
-            <span className="text-[44px] font-medium leading-none tracking-tight">
-              45+
-            </span>
+            {[1, 2].map((i) => (
+              <svg
+                key={`empty-${i}`}
+                className="w-5 h-5 text-yellow-primary"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ))}
           </div>
-
-          <div className="bg-[#eafa4b] text-black rounded-[20px] p-5 flex flex-col items-center justify-center h-[140px]">
-            <span className="font-bold text-[14px] mb-2">Best at</span>
-            <span className="text-[18px] font-medium">Gardening</span>
-          </div>
         </div>
+      </section>
 
-        <div className="flex flex-col gap-4">
-          <div className="bg-[#eafa4b] text-black rounded-[20px] p-5 flex flex-col items-center justify-center h-[110px]">
-            <span className="font-bold text-[14px] mb-2">Trust score</span>
-            <div className="flex gap-1">
-              <Star className="w-[18px] h-[18px] fill-black stroke-black" />
-              <Star className="w-[18px] h-[18px] fill-black stroke-black" />
-              <Star className="w-[18px] h-[18px] fill-black stroke-black" />
-              <Star
-                className="w-[18px] h-[18px] stroke-black"
-                strokeWidth={1.5}
-              />
-              <Star
-                className="w-[18px] h-[18px] stroke-black"
-                strokeWidth={1.5}
-              />
+      <section className="w-full">
+        <div className="w-full mb-4 border border-[#383838]"></div>
+        <p className="w-full flex">
+          <span className="block font-bold">Bio:</span> 🌿 Plant lover | Yard
+          Designer | Creator
+          <br />I like to connect with people and give a lot of help!
+        </p>
+        <div className="w-full mt-4 border border-[#383838]"></div>
+      </section>
+
+      <div className="w-full flex flex-col justify-center items-center gap-6">
+        <section className="w-full h-25 border-2 border-yellow-primary rounded-2xl flex items-center py-2 shadow-sm bg-[#1C1C1C]">
+          <div className="flex-1 flex flex-col items-center justify-center gap-1">
+            <h3 className="text-lg font-bold">Helped</h3>
+            <p className="text-yellow-primary text-3xl font-bold">23</p>
+          </div>
+          <div className="w-px h-15 my-2 bg-yellow-secondary"></div>
+          <div className="flex-1 flex flex-col items-center justify-center gap-1">
+            <h3 className="text-lg font-bold">Posts</h3>
+            <p className="text-yellow-primary text-3xl font-bold">3</p>
+          </div>
+        </section>
+
+        <section className="w-full h-25 border-2 border-yellow-primary rounded-2xl flex justify-between items-center py-2 px-6 shadow-sm bg-[#1C1C1C]">
+          <div className="flex flex-col items-baseline justify-center gap-1">
+            <h2 className="text-yellow-primary text-xl font-bold font-montagu">
+              Best at
+            </h2>
+            <p className="text-xl">Gardening</p>
+          </div>
+          <div className="text-white w-12 h-12 flex items-center justify-center">
+            <Image src="./sprout.svg" alt="icon" width={50} height={50} />
+          </div>
+        </section>
+
+        <section className="w-full min-h-25 border-2 border-yellow-primary rounded-2xl flex flex-col justify-center gap-2 items-baseline py-4 px-6 shadow-sm bg-[#1C1C1C]">
+          <h2 className="text-yellow-primary text-xl font-bold font-montagu">
+            Skills
+          </h2>
+          <div className="flex flex-col gap-y-2">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Gardening
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Cooking
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              DIY
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Cooking
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Cooking
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Cooking
             </div>
           </div>
-
-          <div className="bg-[#fcf5c7] text-black rounded-[20px] p-5 flex flex-col items-center text-center h-[180px]">
-            <span className="font-bold text-[14px] mb-3 mt-1">Skills</span>
-            <div className="text-[15px] leading-snug flex flex-col gap-1">
-              <span>Gardening</span>
-              <span>Cooking</span>
-              <span>DIY</span>
+        </section>
+        <section className="w-full min-h-25 border-2 border-yellow-primary rounded-2xl flex flex-col justify-center gap-2 items-baseline py-4 px-6 shadow-sm bg-[#1C1C1C]">
+          <h2 className="text-yellow-primary text-xl font-bold font-montagu">
+            Tools & Resources
+          </h2>
+          <div className="flex flex-col gap-y-2">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              White Paint
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Pans
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Flowers
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-primary"></span>
+              Flower Fertilizer
             </div>
           </div>
-        </div>
+        </section>
       </div>
-
-      <div className="bg-[#fcf5c7] text-black rounded-[20px] py-5 px-4 flex items-center justify-evenly w-full">
-        <div className="flex flex-col items-center w-full">
-          <span className="text-[14px] mb-1">Helped</span>
-          <span className="text-[32px] font-medium leading-none">23</span>
-        </div>
-
-        <div className="w-[1px] h-[40px] bg-black/15" />
-
-        <div className="flex flex-col items-center w-full">
-          <span className="text-[14px] mb-1">Posts</span>
-          <span className="text-[32px] font-medium leading-none">12</span>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

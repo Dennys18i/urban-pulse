@@ -41,11 +41,11 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center bg-background text-foreground font-sans">
+    <div className="min-h-screen w-full flex justify-center items-center bg-background text-foreground font-inter">
       <div className="w-100 max-w-full px-5 py-6 pb-8 animate-fade-up">
         
         <div className="text-center mb-6">
-          <span className="font-serif text-[32px] font-medium text-foreground tracking-[-0.5px]">
+          <span className="font-montagu text-[32px] font-medium text-foreground tracking-[-0.5px]">
             UrbanPulse
           </span>
           <span className="inline-block w-1.75 h-1.75 bg-green-light rounded-full ml-0.75 align-middle mb-1.5" />
@@ -53,7 +53,7 @@ export default function LoginForm() {
 
         <div className="flex rounded-[14px] p-1 mb-7 gap-1 bg-[#161616]">
           <button
-            className={`flex-1 p-2.5 border-none rounded-[10px] text-[14px] font-semibold cursor-pointer transition-all duration-200 ${
+            className={`flex-1 p-2.5 border-none rounded-[10px] text-[14px] font-semibold cursor-pointer transition-all duration-200 font-inter ${
               activeTab === "login"
                 ? "bg-green-light text-background"
                 : "bg-transparent text-foreground/35 hover:text-foreground/50"
