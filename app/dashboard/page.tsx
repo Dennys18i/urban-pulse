@@ -50,20 +50,7 @@ export default function DashboardPage() {
       });
 
   return (
-    <div className="w-full min-h-screen pb-[8vh]">
-
-      {/* Header */}
-      <div className="relative w-full h-[140px] overflow-hidden">
-        <Image
-          src="/header.jpg"
-          alt="header"
-          fill
-          className="object-cover object-top"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      </div>
-
+    <div className="w-full pb-[8vh]">
       {/* Widget */}
       <div className="px-4 pt-4 pb-2 flex flex-col items-center gap-4">
 
