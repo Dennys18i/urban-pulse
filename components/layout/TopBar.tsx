@@ -1,17 +1,25 @@
 import Image from "next/image";
 import GoBackButton from "../ui/GoBackButton";
 import ProfileRoundButton from "../ui/ProfileRoundButton";
+import { Plus } from "lucide-react";
+import as from "../../.next/dev/server/chunks/ssr/_b6f070ec._";
 
 interface TopBarProps {
   back: boolean;
   notifications: boolean;
   settings: boolean;
+  addPost?: boolean;
 }
 
-export default function TopBar({ back, notifications, settings }: TopBarProps) {
+export default function TopBar({
+  back,
+  notifications,
+  settings,
+  addPost,
+}: TopBarProps) {
   return (
     <div
-      className={`flex ${back ? "justify-between" : "justify-end"} items-center`}
+      className={`flex ${back || addPost ? "justify-between" : "justify-end"} ${addPost ? "mb-[calc(15vh-78px)]" : ""} items-center`}
     >
       {back && (
         <GoBackButton>
@@ -23,6 +31,11 @@ export default function TopBar({ back, notifications, settings }: TopBarProps) {
             className="-ml-2"
           />
         </GoBackButton>
+      )}
+      {addPost && (
+        <ProfileRoundButton route="./profile/settings">
+          <Plus width={47} height={30} strokeWidth={3} />
+        </ProfileRoundButton>
       )}
 
       <div className="flex justify-center items-center gap-3">

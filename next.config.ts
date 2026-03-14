@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
-  allowedDevOrigins: [
-    "192.168.100.46:3000", 
-    "192.168.100.46"
-  ]
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5248",
+        pathname: "/uploads/**",
+      },
+    ],
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

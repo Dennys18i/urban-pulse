@@ -8,7 +8,12 @@ export default function DashboardLayout({
 }) {
   return (
     <Container>
-      <TopBar back={false} notifications={true} settings={false} />
+      <TopBar
+        back={false}
+        notifications={true}
+        settings={false}
+        addPost={true}
+      />
       {children}
     </Container>
   );
