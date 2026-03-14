@@ -6,8 +6,6 @@ import EventCard from "@/components/EventCard";
 import { Event } from "@/types/Event";
 import Image from "next/image";
 
-// const FILTERS = ["GENERAL", "EMERGENCY", "SKILL", "LEND"];
-
 type FilterType = {
   title: string;
   textColor: string;
