@@ -8,13 +8,13 @@ export default function CardMedia({ imageUrl }: CardMediaProps) {
   if (!imageUrl) return null;
 
   return (
-    <div className="relative w-full h-60">
+    <div className="relative w-full -mt-3 -z-10">
       <Image
         src={`http://localhost:5248${imageUrl}`}
         alt="Event Image"
-        fill
-        sizes="(max-width: 768px) 100vw, 400px"
-        className="object-cover"
+        width={350}
+        height={220}
+        className="w-full h-auto object-cover rounded-sm"
       />
     </div>
   );

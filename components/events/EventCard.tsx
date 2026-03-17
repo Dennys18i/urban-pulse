@@ -53,7 +53,7 @@ export default function EventCard({
     typeof event.type === "number" ? typeMap[event.type] : event.type;
 
   return (
-    <div className="w-full bg-[#222222] rounded-4xl overflow-hidden flex flex-col mb-4 relative">
+    <div className="w-full relative mb-4">
       <CardHeader
         initials={getInitials(event.createdByEmail)}
         name={event.createdByEmail?.split("@")[0] ?? "Unknown"}
@@ -61,13 +61,11 @@ export default function EventCard({
         isVerifiedUser={true}
         isMyPost={isMyPost}
         onDelete={() => onDelete && onDelete(event.id)}
+        imageUrl={event.imageUrl}
       />
-
       <CardMedia imageUrl={event.imageUrl} />
-
-      <div className="bg-[#222222] -mt-4 z-10 rounded-t-3xl">
+      <div className={`bg-secondary -mt-4 z-10 rounded-4xl ${event.imageUrl ? "rounded-t-4xl" : "rounded-t-none"} p-5`}>
         <CardContent
-          title={event.title}
           description={event.description}
           isVerified={mappedType === "Emergency"}
         />

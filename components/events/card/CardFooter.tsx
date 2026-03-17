@@ -13,7 +13,7 @@ interface CardFooterProps {
 
 export default function CardFooter({ likes, liked, onLike, saved, onSave, type }: CardFooterProps) {
   return (
-    <div className="flex items-center justify-between px-4 pb-4 pt-1 border-t border-white/10 mt-2">
+    <div className="flex items-center justify-between pt-1 border-t-2 border-white/10 mt-2">
       <div className="flex items-center gap-5 mt-3">
         <button onClick={onLike} className="flex items-center gap-1.5 transition-transform active:scale-90">
           <Heart size={22} className={liked ? "fill-green-400 text-green-400" : "text-green-400"} />
