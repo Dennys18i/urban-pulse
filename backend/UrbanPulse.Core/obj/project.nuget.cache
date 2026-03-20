@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dgSpecHash": "qdqb8upLQ1k=",
+  "success": true,
+  "projectFilePath": "/Users/denisantoci/Desktop/Urban_Pulse_Frontend/urban-pulse-frontend/backend/UrbanPulse.Core/UrbanPulse.Core.csproj",
+  "expectedPackageFiles": [
+    "/Users/denisantoci/.nuget/packages/bcrypt.net-next/4.1.0/bcrypt.net-next.4.1.0.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.0/microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.extensions.configuration.abstractions/8.0.0/microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.extensions.primitives/8.0.0/microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.abstractions/7.0.3/microsoft.identitymodel.abstractions.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.jsonwebtokens/7.0.3/microsoft.identitymodel.jsonwebtokens.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.logging/7.0.3/microsoft.identitymodel.logging.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.protocols/7.0.3/microsoft.identitymodel.protocols.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.protocols.openidconnect/7.0.3/microsoft.identitymodel.protocols.openidconnect.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/microsoft.identitymodel.tokens/7.0.3/microsoft.identitymodel.tokens.7.0.3.nupkg.sha512",
+    "/Users/denisantoci/.nuget/packages/system.identitymodel.tokens.jwt/7.0.3/system.identitymodel.tokens.jwt.7.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
