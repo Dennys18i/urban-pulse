@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import ProfileSettingsLink from "@/components/profile/ProfileSettingsLink";
-import { ChevronRight, LogOut, Trash2 } from "lucide-react";
+import { ChevronRight, LogOut, Trash2, Satellite } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Settings() {
   const [displayName, setDisplayName] = useState("");
+  const [role, setRole] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -21,6 +23,7 @@ export default function Settings() {
       .then((res) => res.json())
       .then((data) => {
         setDisplayName(data.fullName ?? data.email?.split("@")[0] ?? "User");
+        setRole(data.role ?? "User");
       });
   }, []);
 
@@ -47,6 +50,7 @@ export default function Settings() {
   const nameParts = displayName.split(" ");
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ");
+  const isAdmin = role === "Admin";
 
   return (
     <>
@@ -80,6 +84,21 @@ export default function Settings() {
           <ProfileSettingsLink text="security" />
           <ProfileSettingsLink text="saved" />
           <ProfileSettingsLink text="preferences" />
+
+          {/* Admin Dashboard — only visible to admins */}
+          {isAdmin && (
+            <Link href="/admin" className="w-full">
+              <button className="w-full h-14 bg-red-emergency rounded-full px-5 flex justify-between items-center cursor-pointer transition-transform active:scale-[0.98]">
+                <div className="flex justify-center items-center gap-4">
+                  <Satellite className="size-7 text-white" strokeWidth={2} />
+                  <span className="text-xl font-bold text-white">
+                    Admin dashboard
+                  </span>
+                </div>
+                <ChevronRight className="size-7 text-white" />
+              </button>
+            </Link>
+          )}
         </div>
 
         <div className="w-full h-px bg-[#383838] my-2 -mb-1"></div>
