@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Event, EventType } from "@/types/Event";
 import CardHeader from "./card/CardHeader";
 import CardMedia from "./card/CardMedia";
@@ -37,12 +38,24 @@ export default function EventCard({
   isMyPost,
   onDelete,
 }: EventCardProps) {
+  const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [likes, setLikes] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isCompleted, setIsCompleted] = useState(event.isCompleted ?? false);
   const { connection } = useSignalR();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5248/api/user/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setCurrentUserId(data.id));
+  }, []);
 
   useEffect(() => {
     if (event.id === -1) return;
@@ -107,6 +120,29 @@ export default function EventCard({
     setLiked(data.liked);
   };
 
+  const handleMessage = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5248/api/chat/conversations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ otherUserId: event.createdByUserId, eventId: event.id }),
+    });
+    const data = await res.json();
+    router.push(`/chat-conversation/${data.conversationId}`);
+  };
+
+  const handleComplete = async () => {
+    const token = localStorage.getItem("token");
+    await fetch(`http://localhost:5248/api/event/${event.id}/complete`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setIsCompleted(true);
+  };
+
   const typeMap: Record<number, EventType> = {
     0: "General",
     1: "Emergency",
@@ -115,6 +151,8 @@ export default function EventCard({
   };
   const mappedType =
     typeof event.type === "number" ? typeMap[event.type] : event.type;
+
+  const isOwner = isMyPost || currentUserId === event.createdByUserId;
 
   return (
     <div className="w-full relative mb-4">
@@ -134,7 +172,13 @@ export default function EventCard({
           isVerified={mappedType === "Emergency"}
         />
 
-        <CardActions type={mappedType} />
+        <CardActions
+          type={mappedType}
+          isMyPost={isOwner}
+          onMessage={handleMessage}
+          isCompleted={isCompleted}
+          onComplete={handleComplete}
+        />
 
         <CardFooter
           likes={likes}
@@ -145,6 +189,7 @@ export default function EventCard({
           type={mappedType}
           comments={commentCount}
           onComment={() => setShowComments(true)}
+          isMyPost={isOwner}
         />
       </div>
 

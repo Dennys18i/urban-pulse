@@ -66,6 +66,13 @@ namespace UrbanPulse.Core.Services
             return events.Select(MapToDto).ToList();
         }
 
+        public async Task CompleteEventAsync(int eventId, int userId)
+        {
+            var ev = await _eventRepository.GetByIdAsync(eventId);
+            if (ev == null || ev.CreatedByUserId != userId) return;
+            await _eventRepository.CompleteAsync(eventId);
+        }
+
         public async Task DeactivateAsync(int id)
             => await _eventRepository.DeactivateAsync(id);
 
@@ -81,7 +88,8 @@ namespace UrbanPulse.Core.Services
             CreatedByUserId = ev.CreatedByUserId,
             CreatedByEmail = ev.CreatedByUser?.Email ?? string.Empty,
             CreatedAt = ev.CreatedAt,
-            IsActive = ev.IsActive
+            IsActive = ev.IsActive,
+            IsCompleted = ev.IsCompleted
         };
     }
 }

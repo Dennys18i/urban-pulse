@@ -11,6 +11,7 @@ interface CardFooterProps {
   type: EventType;
   comments: number;
   onComment: () => void;
+  isMyPost?: boolean;
 }
 
 export default function CardFooter({ likes, liked, onLike, saved, onSave, type, comments, onComment }: CardFooterProps) {

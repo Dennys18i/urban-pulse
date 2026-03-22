@@ -84,6 +84,15 @@ namespace UrbanPulse.Infrastructure.Repositories
             }
         }
 
+        public async Task CompleteAsync(int eventId)
+        {
+            var ev = await _db.Events.FindAsync(eventId);
+            if (ev == null) return;
+            ev.IsCompleted = true;
+            ev.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+
         private static double ToRad(double deg) => deg * Math.PI / 180;
 
     }

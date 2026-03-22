@@ -15,5 +15,6 @@ namespace UrbanPulse.Core.Interfaces
         Task<List<EventResponseDto>> GetByTypeAsync(string type);
         Task<IEnumerable<EventResponseDto>> GetByUserIdAsync(int userId);
         Task DeactivateAsync(int id);
+        Task CompleteEventAsync(int eventId, int userId);
     }
 }
