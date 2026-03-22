@@ -23,7 +23,7 @@ const mockUserData = {
   name: "Johann Strauss",
   avatar: "/profile.png",
   trustScore: 57,
-  starRating: 3, // out of 5
+  starRating: 3,
   reports: [
     {
       id: "1",
@@ -32,7 +32,8 @@ const mockUserData = {
       date: "15.02.2026",
       time: "7:20",
       category: "Harassment and abuse",
-      description: "This user has been repeatedly sending me offensive messages and using abusive language towards me.",
+      description:
+        "This user has been repeatedly sending me offensive messages and using abusive language towards me.",
     },
     {
       id: "2",
@@ -50,7 +51,8 @@ const mockUserData = {
       date: "15.02.2026",
       time: "7:20",
       category: "Abuse",
-      description: "I received messages from this user constantly and it really bothered me. I also blocked him, but please do something.",
+      description:
+        "I received messages from this user constantly and it really bothered me. I also blocked him, but please do something.",
     },
   ] as Report[],
 };
@@ -65,10 +67,7 @@ export default function FlaggedUserDetailPage() {
   const handleDismiss = () => {
     setShowResolveModal(false);
     setResolved(true);
-    // Logica dismiss (API call)
-    setTimeout(() => {
-      router.back();
-    }, 800);
+    setTimeout(() => router.back(), 800);
   };
 
   const handleOpenBanModal = () => {
@@ -79,21 +78,17 @@ export default function FlaggedUserDetailPage() {
   const handleBanUser = (reason: string) => {
     setShowBanModal(false);
     setResolved(true);
-    // Logica ban user cu reason (API call)
     console.log("User banned. Reason:", reason);
-    setTimeout(() => {
-      router.back();
-    }, 800);
+    setTimeout(() => router.back(), 800);
   };
 
-  // Calculăm câte stele pline și câte goale
   const fullStars = mockUserData.starRating;
   const emptyStars = 5 - fullStars;
 
   return (
     <>
       <div className="w-full flex flex-col gap-6 animate-fade-up pb-20">
-        {/* Header - original cu undo.svg și Check button */}
+        {/* Header */}
         <div className="flex items-center justify-between relative">
           <button
             onClick={() => router.back()}
@@ -108,7 +103,6 @@ export default function FlaggedUserDetailPage() {
             />
           </button>
 
-          {/* Resolve button */}
           <button
             onClick={() => setShowResolveModal(true)}
             disabled={resolved}
@@ -122,9 +116,8 @@ export default function FlaggedUserDetailPage() {
           </button>
         </div>
 
-        {/* User info section - exact layout ca în /profile */}
+        {/* User info */}
         <section className="w-full flex justify-around items-center px-2">
-          {/* Avatar */}
           <div className="w-36 h-36 rounded-full overflow-hidden flex-shrink-0">
             <Image
               src={mockUserData.avatar}
@@ -135,9 +128,7 @@ export default function FlaggedUserDetailPage() {
             />
           </div>
 
-          {/* Name and Stars */}
           <div className="flex flex-col gap-3">
-            {/* Name - exact typography ca în /profile */}
             <h1 className="text-2xl font-bold font-montagu text-center leading-tight">
               {mockUserData.name.includes(" ") ? (
                 <>
@@ -150,9 +141,7 @@ export default function FlaggedUserDetailPage() {
               )}
             </h1>
 
-            {/* Stars rating - exact ca în /profile */}
             <div className="flex justify-center items-center rounded-full px-3 py-1.5 h-8 bg-linear-to-b from-[#FFFADC]/50 to-[#FFF197]/50 shadow-[0px_11.3915px_22.3363px_rgba(255,227,42,0.19),inset_0px_-2px_1px_rgba(255,241,151,0.4)] backdrop-blur-[2px]">
-              {/* Full stars */}
               {Array.from({ length: fullStars }).map((_, i) => (
                 <svg
                   key={`full-${i}`}
@@ -160,14 +149,9 @@ export default function FlaggedUserDetailPage() {
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z"
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                  />
+                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z" />
                 </svg>
               ))}
-              {/* Empty stars */}
               {Array.from({ length: emptyStars }).map((_, i) => (
                 <svg
                   key={`empty-${i}`}
@@ -177,11 +161,7 @@ export default function FlaggedUserDetailPage() {
                   strokeWidth="1.5"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z"
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                  />
+                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z" />
                 </svg>
               ))}
             </div>
@@ -192,33 +172,12 @@ export default function FlaggedUserDetailPage() {
         <div className="flex items-center gap-2 justify-center">
           <div className="flex items-center justify-center w-7 h-7">
             <svg viewBox="0 0 24 24" className="w-6 h-6">
-              <path
-                d="M12 2L2 7L12 12L22 7L12 2Z"
-                fill="none"
-                stroke="#C0392B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 17L12 22L22 17"
-                fill="none"
-                stroke="#C0392B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 12L12 17L22 12"
-                fill="none"
-                stroke="#C0392B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-emergency" />
+              <path d="M2 17L12 22L22 17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-emergency" />
+              <path d="M2 12L12 17L22 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-emergency" />
             </svg>
           </div>
-          <span className="text-[#C0392B] font-semibold text-base">
+          <span className="text-red-emergency font-semibold text-base">
             Number of reports: {mockUserData.reports.length}
           </span>
         </div>
@@ -239,34 +198,31 @@ export default function FlaggedUserDetailPage() {
         </div>
       </div>
 
-      {/* ── Resolve Task Modal (folosește PortalModal reutilizabil) ── */}
+      {/* Resolve Task Modal */}
       <PortalModal
         isOpen={showResolveModal}
         onClose={() => setShowResolveModal(false)}
       >
-        {/* Header */}
         <div className="flex items-center justify-center py-4 border-b border-white/10">
           <h2 className="text-base font-bold text-white">Resolve task</h2>
         </div>
-
-        {/* Buttons */}
         <div className="flex flex-col p-5 gap-3">
           <button
             onClick={handleDismiss}
-            className="w-full py-4 rounded-xl bg-[#4CAF50] hover:bg-[#43A047] active:scale-95 transition-all font-bold text-white text-base cursor-pointer"
+            className="w-full py-4 rounded-xl bg-green-light hover:bg-green-light/80 active:scale-95 transition-all font-bold text-white text-base cursor-pointer"
           >
             Dismiss
           </button>
           <button
             onClick={handleOpenBanModal}
-            className="w-full py-4 rounded-xl bg-[#C0392B] hover:bg-[#A93226] active:scale-95 transition-all font-bold text-white text-base cursor-pointer"
+            className="w-full py-4 rounded-xl bg-red-emergency hover:bg-red-emergency/80 active:scale-95 transition-all font-bold text-white text-base cursor-pointer"
           >
             Ban user
           </button>
         </div>
       </PortalModal>
 
-      {/* ── Ban User Confirmation Modal ── */}
+      {/* Ban User Modal */}
       <BanUserModal
         isOpen={showBanModal}
         onClose={() => setShowBanModal(false)}

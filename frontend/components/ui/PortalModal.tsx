@@ -9,15 +9,6 @@ interface PortalModalProps {
   children: ReactNode;
 }
 
-/**
- * Componentă reutilizabilă de modal care folosește createPortal
- * pentru a monta conținutul direct în document.body.
- *
- * Folosire:
- *   <PortalModal isOpen={show} onClose={() => setShow(false)}>
- *     {/* orice conținut vrei în modal *\/}
- *   </PortalModal>
- */
 export default function PortalModal({
   isOpen,
   onClose,
@@ -30,7 +21,6 @@ export default function PortalModal({
     return () => setMounted(false);
   }, []);
 
-  // Blochează scroll-ul când modalul e deschis
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => {
@@ -46,7 +36,7 @@ export default function PortalModal({
       onClick={onClose}
     >
       <div
-        className="bg-[#1e1e1e] w-full rounded-2xl overflow-hidden border border-white/10"
+        className="bg-secondary w-full rounded-2xl overflow-hidden border border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
