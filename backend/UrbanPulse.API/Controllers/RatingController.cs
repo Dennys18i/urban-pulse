@@ -14,11 +14,13 @@ public class RatingController : ControllerBase
 {
     private readonly IRatingRepository _ratingRepository;
     private readonly IConversationRepository _conversationRepository;
+    private readonly IUserRepository _userRepository;
 
-    public RatingController(IRatingRepository ratingRepository, IConversationRepository conversationRepository)
+    public RatingController(IRatingRepository ratingRepository, IConversationRepository conversationRepository, IUserRepository userRepository)
     {
         _ratingRepository = ratingRepository;
         _conversationRepository = conversationRepository;
+        _userRepository = userRepository;
     }
 
     [HttpPost]
@@ -43,7 +45,25 @@ public class RatingController : ControllerBase
         };
 
         await _ratingRepository.AddAsync(rating);
-        return Ok();
+
+        var allRatings = await _ratingRepository.GetByUserIdAsync(ratedUserId);
+        var helpful = allRatings.Count(r => r.Value == "helpful");
+        var notHelpful = allRatings.Count(r => r.Value == "not_helpful");
+        var total = helpful + notHelpful;
+
+        var trustScore = total > 0 ? (double)helpful / total * 100 : 0;
+        var isVerified = helpful >= 3 && trustScore >= 75;
+
+        var ratedUser = await _userRepository.GetByIdAsync(ratedUserId);
+        if (ratedUser != null)
+        {
+            ratedUser.TrustScore = trustScore;
+            ratedUser.IsVerified = isVerified;
+            ratedUser.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(ratedUser);
+        }
+
+        return Ok(new { trustScore, isVerified });
     }
 
     [HttpGet("check")]
