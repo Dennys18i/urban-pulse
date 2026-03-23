@@ -79,7 +79,7 @@ export default function FlaggedContentPage() {
         });
 
   const handleViewInsights = (eventId: number) => {
-    console.log("View insights for event:", eventId);
+    router.push(`/admin/tasks/flagged-content/${eventId}`);
   };
 
   return (
@@ -105,11 +105,13 @@ export default function FlaggedContentPage() {
         </div>
       </div>
 
+      {/* Filters */}
       <EventFilters
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
       />
 
+      {/* Flagged posts feed */}
       <div className="flex flex-col gap-2 mt-2">
         {filteredEvents.length === 0 && (
           <p className="text-white/40 text-sm text-center mt-10">
