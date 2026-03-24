@@ -56,7 +56,7 @@ export default function ConfirmModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 h-full font-bold text-white bg-[#383838] cursor-pointer hover:bg-[#383838]/80 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-full font-bold text-white bg-third cursor-pointer hover:bg-third/80 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "..." : confirmLabel}
           </button>

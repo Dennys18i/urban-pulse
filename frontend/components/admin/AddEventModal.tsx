@@ -35,11 +35,11 @@ export default function AddEventModal({
     <PortalModal
       isOpen={isOpen}
       onClose={onClose}
-      contentClassName="bg-[#4A5568] w-full rounded-3xl overflow-hidden"
+      contentClassName="bg-weather-nice w-full rounded-4xl overflow-hidden"
     >
       {/* Title */}
-      <div className="flex items-center justify-center py-4">
-        <h2 className="text-lg font-semibold text-white">Add event</h2>
+      <div className="flex items-center justify-center py-5">
+        <h2 className="text-2xl font-bold text-white">Add event</h2>
       </div>
 
       {/* Input */}
@@ -49,7 +49,7 @@ export default function AddEventModal({
           value={eventText}
           onChange={(e) => setEventText(e.target.value)}
           placeholder="Write..."
-          className="w-full bg-[#5A6779] text-white placeholder:text-gray-400/60 rounded-2xl px-4 py-3.5 resize-none outline-none focus:ring-1 focus:ring-white/20 transition-all text-sm"
+          className="w-full bg-[#5C6478] text-white placeholder:text-gray-300 rounded-3xl px-5 py-4 resize-none outline-none transition-all text-base"
           rows={4}
         />
       </div>
@@ -58,7 +58,7 @@ export default function AddEventModal({
       <div className="flex justify-center pb-5">
         <button
           onClick={handleSave}
-          className="bg-[#2C3E50] hover:bg-[#34495E] text-white font-semibold px-16 py-3 rounded-full transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-sm"
+          className="bg-[#1E2840] hover:bg-[#1E2840]/90 text-white font-semibold px-16 py-3 rounded-full transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-base cursor-pointer"
           disabled={!eventText.trim()}
         >
           Save

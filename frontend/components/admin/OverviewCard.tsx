@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface OverviewCardProps {
   title: string;
   stats: { bold: string; text: string }[];
@@ -5,17 +7,17 @@ interface OverviewCardProps {
 
 export default function OverviewCard({ title, stats }: OverviewCardProps) {
   return (
-    <div className="w-full bg-secondary/60 border border-white/10 rounded-2xl p-5">
+    <div className="w-full bg-third rounded-xl p-6">
       {/* Title row */}
-      <div className="flex items-center gap-2.5 mb-4">
-        <span className="w-3 h-3 rounded-full bg-green-light" />
-        <h3 className="text-white font-bold text-base">{title}</h3>
+      <div className="flex items-start">
+        <Image src={"/overview-ellipse.png"} alt="Design Ellipse" width={60} height={60} />
+        <h3 className="text-white font-bold text-xl pt-1.5 -ml-2">{title}</h3>
       </div>
 
       {/* Stats with left accent border */}
-      <div className="border-l-2 border-white/20 pl-4 ml-1 flex flex-col gap-1.5">
+      <div className="border-l-2 border-white/80 ml-5 p-2 pl-4 flex flex-col gap-1.5">
         {stats.map((stat, i) => (
-          <p key={i} className="text-white text-sm">
+          <p key={i} className="text-white text-xl">
             <span className="font-bold">{stat.bold}</span> {stat.text}
           </p>
         ))}

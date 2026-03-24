@@ -89,7 +89,7 @@ export default function Settings() {
           {isAdmin && <ProfileSettingsLink text="admin" />}
         </div>
 
-        <div className="w-full h-px bg-[#383838] my-2"></div>
+        <div className="w-full h-px bg-third my-2"></div>
 
         <div className="w-full flex flex-col justify-center items-center gap-3">
           <button

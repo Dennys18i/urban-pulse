@@ -55,7 +55,7 @@ export default function DonutChart({
 
       {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-white font-bold text-2xl">{centerText}</span>
+        <span className="text-white font-bold text-2xl font-montagu">{centerText}</span>
         {centerSubtext && (
           <span className="text-white/60 text-sm">{centerSubtext}</span>
         )}
