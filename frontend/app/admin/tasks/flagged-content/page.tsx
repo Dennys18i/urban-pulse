@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import EventCard from "@/components/events/EventCard";
 import EventFilters from "@/components/dashboard/EventFilters";
 import { Event, EventType } from "@/types/Event";
 import { EVENT_TAG_STYLES } from "@/lib/constants";
+import GoBackButton from "@/components/ui/GoBackButton";
 
 const mockFlaggedEvents: (Event & { flagCount: number })[] = [
   {
     id: 101,
     description:
-      'A huge <strong>flood</strong> happened this morning..Let\'s do something now because we are blocked here',
+      "A huge <strong>flood</strong> happened this morning..Let's do something now because we are blocked here",
     type: "Emergency" as EventType,
     latitude: 47.15,
     longitude: 27.58,
@@ -86,18 +86,7 @@ export default function FlaggedContentPage() {
     <div className="w-full flex flex-col gap-4 animate-fade-up pb-20">
       {/* Header */}
       <div className="flex items-center relative mb-4">
-        <button
-          onClick={() => router.back()}
-          className="cursor-pointer hover:scale-105 active:scale-95 z-10"
-        >
-          <Image
-            src="/undo.svg"
-            alt="go_back"
-            width={69}
-            height={49}
-            className="-ml-2"
-          />
-        </button>
+        <GoBackButton />
 
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <h1 className="text-white font-bold text-xl">Flagged content</h1>

@@ -193,13 +193,6 @@ export default function FlaggedUserDetailPage() {
       />
 
       {/* Ban User Modal */}
-      {/* <BanUserModal
-        isOpen={showBanModal}
-        onClose={() => setShowBanModal(false)}
-        onConfirm={handleBanUser}
-        defaultReason="Harassment and abuse"
-      /> */}
-
       <ConfirmModal
         isOpen={showBanModal}
         onClose={() => setShowBanModal(false)}
