@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, Check } from "lucide-react";
+import { PiSealCheck } from "react-icons/pi";
 
 // ── Types ──
 interface DuplicateUserAccount {
@@ -69,27 +70,27 @@ export default function ReviewDuplicateUsersPage() {
       {/* Matches info */}
       <div className="flex flex-col gap-1">
         <h2 className="text-yellow-primary font-bold text-xl">Matches:</h2>
-        <p className="text-white font-bold text-2xl">
+        <p className="text-white font-bold text-xl">
           {mockMatchCriteria.join(", ")}
         </p>
       </div>
 
       {/* Divider */}
-      <div className="h-[2px] bg-yellow-primary/60" />
+      <div className="h-0.5 bg-white/60 -mt-3 mb-1" />
 
       {/* Instruction */}
       <div className="flex flex-col gap-2">
         <p className="text-white text-base">
           Select which account is{" "}
-          <span className="text-[#E8837C] font-bold">permanent</span>:
+          <span className="text-red-emergency font-bold">permanent</span>:
         </p>
-        <p className="text-white/40 text-sm">
+        <p className="text-white/40 text-[13px] mt-4 -mb-2">
           *The other one/ones will be deleted
         </p>
       </div>
 
       {/* User account cards */}
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-6">
         {mockDuplicateAccounts.map((account) => {
           const isSelected = selectedId === account.id;
 
@@ -97,61 +98,64 @@ export default function ReviewDuplicateUsersPage() {
             <button
               key={account.id}
               onClick={() => setSelectedId(account.id)}
-              className={`w-full bg-[#1e1e1e] border-2 rounded-2xl p-5 flex flex-col gap-4 transition-all cursor-pointer text-left ${
+              className={`w-full h-53 bg-secondary border rounded-[20] p-5 flex flex-col gap-4 transition-all cursor-pointer text-left ${
                 isSelected
                   ? "border-yellow-primary shadow-[0_0_15px_rgba(245,214,61,0.2)]"
-                  : "border-yellow-primary/60"
+                  : "border-yellow-primary"
               }`}
             >
-              {/* Top: avatar + name + verified + checkbox */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  {/* Avatar */}
-                  <div className="w-16 h-16 rounded-full bg-white overflow-hidden flex-shrink-0">
-                    <Image
-                      src={account.avatar}
-                      alt={account.name}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Name + Verified */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-white font-semibold text-lg">
-                      {account.name}
-                    </span>
-                    {account.isVerified && (
-                      <div className="flex items-center gap-1.5">
-                        <BadgeCheck
-                          size={20}
-                          className="text-green-light fill-green-light"
-                        />
-                        <span className="text-green-light font-bold text-sm">
-                          Verified Neighbour
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Checkbox */}
+              <div className="w-full flex justify-end -mb-8">
                 <div
-                  className={`w-7 h-7 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                  className={`w-7 h-7 bg-white rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
                     isSelected
                       ? "bg-yellow-primary border-yellow-primary"
                       : "bg-transparent border-white/60"
                   }`}
                 >
                   {isSelected && (
-                    <Check size={18} className="text-[#1a1a1a]" strokeWidth={3} />
+                    <Check
+                      size={18}
+                      className="text-[#1a1a1a]"
+                      strokeWidth={3}
+                    />
                   )}
                 </div>
               </div>
 
+              {/* Top: avatar + name + verified + checkbox */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className="w-19.5 h-19.5 rounded-full overflow-hidden shrink-0">
+                    <Image
+                      src={account.avatar}
+                      alt={account.name}
+                      width={78}
+                      height={78}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Name + Verified */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-white text-[20px]">
+                      {account.name}
+                    </span>
+                    {account.isVerified && (
+                      <div className="flex items-center gap-1.5">
+                        <BadgeCheck
+                          size={24}
+                          className="text-green-light fill-green-light [&>path:last-child]:stroke-black [&>path:last-child]:scale-125 [&>path:last-child]:origin-center"
+                        />
+                        <span className="font-bold">Verified Neighbour</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Trust score */}
-              <p className="text-[#E8837C] font-bold text-lg">
+              <p className="text-yellow-primary font-bold text-[20px] mt-2">
                 Trust score: {account.trustScore}%
               </p>
             </button>
@@ -164,17 +168,17 @@ export default function ReviewDuplicateUsersPage() {
         <button
           onClick={handleKeep}
           disabled={!selectedId}
-          className={`flex-1 max-w-[200px] py-4 rounded-2xl font-bold text-base transition-all cursor-pointer ${
+          className={`w-36.5 h-11.5 rounded-full font-bold text-[20px] text-black transition-all cursor-pointer ${
             selectedId
-              ? "bg-green-light hover:bg-green-light/80 active:scale-95 text-white"
-              : "bg-green-light/40 text-white/50 cursor-not-allowed"
+              ? "bg-green-light hover:bg-green-light/80 active:scale-95"
+              : "bg-green-light/40 text-black/50 cursor-not-allowed"
           }`}
         >
           Keep
         </button>
         <button
           onClick={handleIgnore}
-          className="flex-1 max-w-[200px] py-4 rounded-2xl bg-[#A53A3A] hover:bg-[#A53A3A]/80 active:scale-95 transition-all font-bold text-white text-base cursor-pointer"
+          className="w-36.5 h-11.5 rounded-full font-bold text-[20px] bg-red-emergency hover:bg-emergency/80 active:scale-95 transition-all text-base cursor-pointer"
         >
           Ignore
         </button>
