@@ -2,23 +2,16 @@
 
 import Container from "@/components/layout/Container";
 import TopBar from "@/components/layout/TopBar";
-import { usePathname } from "next/navigation";
 
-export default function ProfileLayout({
+export default function AdminProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   return (
-    <Container>
-      <TopBar
-        back={pathname.startsWith("/profile")}
-        notifications={true}
-        settings={pathname === "/profile"}
-      />
+    <>
+      <TopBar back={true} notifications={false} settings={false} />
       {children}
-    </Container>
+    </>
   );
 }
