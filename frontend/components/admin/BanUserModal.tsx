@@ -36,7 +36,7 @@ export default function BanUserModal({
       onConfirm={handleConfirm}
       icon={<Ban />}
       title="Ban user"
-      boldText="ban this user?"
+      boldText="ban this user"
     >
       <div className="flex flex-col gap-2">
         <label className="text-sm font-semibold text-white">Reason</label>

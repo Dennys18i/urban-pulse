@@ -3,10 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Ban, Check, ClipboardCheck } from "lucide-react";
+import { Ban } from "lucide-react";
 import UserReportCard from "@/components/admin/UserReportCard";
-import PortalModal from "@/components/ui/PortalModal";
-import BanUserModal from "@/components/admin/BanUserModal";
 import NumberOfReports from "@/components/admin/NumberOfReports";
 import CheckButton from "@/components/admin/CheckButton";
 import ResolveTaskModal from "@/components/ui/ResolveTaskModal";
@@ -199,7 +197,7 @@ export default function FlaggedUserDetailPage() {
         onConfirm={() => handleBanUser(banReason)}
         icon={<Ban />}
         title="Ban user"
-        boldText="ban this user?"
+        boldText="ban this user"
       >
         <div className="flex flex-col gap-1.5">
           <label htmlFor="reason" className="text-white font-bold">

@@ -127,7 +127,7 @@ export default function Settings() {
         onConfirm={handleLogOut}
         icon={<LogOut />}
         title="Log out"
-        boldText="log out?"
+        boldText="log out"
       />
 
       {/* Delete Account */}
@@ -137,7 +137,7 @@ export default function Settings() {
         onConfirm={handleDeleteAccount}
         icon={<Trash2 />}
         title="Delete account"
-        boldText="delete your account?"
+        boldText="delete your account"
         loading={deleting}
       />
     </>

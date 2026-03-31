@@ -47,6 +47,7 @@ export default function ConfirmModal({
         <p className="text-white text-lg px-4 text-center">
           Are you sure you want to{" "}
           <span className="font-bold underline">{boldText}</span>
+          ?
         </p>
 
         {/* YES / NO */}

@@ -174,7 +174,7 @@ export default function FlaggedContentDetailPage() {
         onConfirm={handleDeletePost}
         icon={<Trash2 />}
         title="Delete post"
-        boldText="delete this post?"
+        boldText="delete this post"
       >
         <div className="flex flex-col gap-1.5">
           <label
