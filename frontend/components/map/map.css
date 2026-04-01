@@ -28,8 +28,15 @@
 }
 .leaflet-control-attribution a { color: #9ca3af !important; }
 
-.map-marker { display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s; }
-.map-marker:hover { transform: scale(1.2) translateY(-2px); }
+.map-marker { display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+.emergency-circle {
+  animation: emergencyPulse 1.4s ease-in-out infinite;
+}
+@keyframes emergencyPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
 
 .map-search-bar {
   position: absolute;

@@ -54,46 +54,38 @@ interface EventMarker {
   type: "skill" | "lend" | "emergency";
 }
 
-function makeUserIcon(color: string, shadow: string, offset: number, symbol: string) {
+function makeUserIcon(color: string, shadow: string, offset: number) {
   return L.divIcon({
     className: "",
     html: `<div class="map-marker" style="transform:translateX(${offset}px)">
-      <svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 0C6.268 0 0 6.268 0 14c0 9.8 14 22 14 22s14-12.2 14-22C28 6.268 21.732 0 14 0z" fill="${color}" style="filter:drop-shadow(0 2px 8px ${shadow})"/>
-        <circle cx="14" cy="13" r="5.5" fill="#1C1C1C"/>
-        <text x="14" y="17" text-anchor="middle" font-size="7" fill="${color}">${symbol}</text>
-      </svg>
+      <div class="marker-circle" style="--circle-color:${color};--circle-shadow:${shadow}"></div>
     </div>`,
-    iconSize: [28, 36],
-    iconAnchor: [14, 36],
-    popupAnchor: [0, -38],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -24],
   });
 }
 
-function makeEventIcon(color: string, shadow: string, symbol: string) {
+function makeEventIcon(color: string, shadow: string, isEmergency = false) {
   return L.divIcon({
     className: "",
     html: `<div class="map-marker">
-      <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 11.2 16 24 16 24s16-12.8 16-24C32 7.163 24.837 0 16 0z" fill="${color}" style="filter:drop-shadow(0 2px 10px ${shadow})"/>
-        <circle cx="16" cy="15" r="7" fill="#1C1C1C"/>
-        <text x="16" y="19.5" text-anchor="middle" font-size="9" fill="${color}">${symbol}</text>
-      </svg>
+      <div class="marker-circle ${isEmergency ? "emergency-pulse" : ""}" style="--circle-color:${color};--circle-shadow:${shadow}"></div>
     </div>`,
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-    popupAnchor: [0, -42],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -24],
   });
 }
 
 const ICONS = {
-  skillOnly:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.5)",   0,   "★"),
-  toolOnly:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.5)",  0,   "⚙"),
-  bothSkill:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.5)",  -10,  "★"),
-  bothTool:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.5)", +10,  "⚙"),
-  eventSkill:   () => makeEventIcon("#FFD700", "rgba(255,215,0,0.6)", "★"),
-  eventLend:    () => makeEventIcon("#3B82F6", "rgba(59,130,246,0.6)", "⚙"),
-  emergency:    () => makeEventIcon("#EF4444", "rgba(239,68,68,0.6)",  "!"),
+  skillOnly:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.6)",   0),
+  toolOnly:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.6)",  0),
+  bothSkill:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.6)",  -14),
+  bothTool:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.6)", +14),
+  eventSkill:   () => makeEventIcon("#FFD700", "rgba(255,215,0,0.6)"),
+  eventLend:    () => makeEventIcon("#3B82F6", "rgba(59,130,246,0.6)"),
+  emergency:    () => makeEventIcon("#EF4444", "rgba(239,68,68,0.6)", true),
 };
 
 function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void }) {
@@ -293,33 +285,49 @@ function MarkersLayer({
   onEventClick: (e: EventItem) => void;
 }) {
   const map = useMap();
-  const refs = useRef<L.Marker[]>([]);
+  const refs = useRef<(L.Circle | L.Marker)[]>([]);
 
   useEffect(() => {
     refs.current.forEach((m) => map.removeLayer(m));
     refs.current = [];
 
     userMarkers.forEach(({ user, lat, lng, hasSkills, hasTools }) => {
-      const add = (icon: L.DivIcon, cb: () => void) => {
-        const m = L.marker([lat, lng], { icon }).addTo(map);
-        m.on("click", cb);
-        refs.current.push(m);
+      const addCircle = (color: string, offsetLng = 0) => {
+        const circle = L.circle([lat, lng + offsetLng], {
+          radius: 250,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.25,
+          opacity: 0.6,
+          weight: 2,
+        }).addTo(map);
+        circle.on("click", () => onUserClick(user));
+        refs.current.push(circle);
       };
+
       if (hasSkills && hasTools) {
-        add(ICONS.bothSkill(), () => onUserClick(user));
-        add(ICONS.bothTool(), () => onUserClick(user));
+        addCircle("#FFD700", -0.002);
+        addCircle("#3B82F6", +0.002);
       } else if (hasSkills) {
-        add(ICONS.skillOnly(), () => onUserClick(user));
+        addCircle("#FFD700");
       } else {
-        add(ICONS.toolOnly(), () => onUserClick(user));
+        addCircle("#3B82F6");
       }
     });
 
     eventMarkers.forEach(({ event, type }) => {
-      const icon = type === "emergency" ? ICONS.emergency() : type === "skill" ? ICONS.eventSkill() : ICONS.eventLend();
-      const m = L.marker([event.latitude, event.longitude], { icon }).addTo(map);
-      m.on("click", () => onEventClick(event));
-      refs.current.push(m);
+      const color = type === "emergency" ? "#EF4444" : type === "skill" ? "#FFD700" : "#3B82F6";
+      const circle = L.circle([event.latitude, event.longitude], {
+        radius: 250,
+        color: color,
+        fillColor: color,
+        fillOpacity: type === "emergency" ? 0.35 : 0.25,
+        opacity: type === "emergency" ? 0.8 : 0.6,
+        weight: type === "emergency" ? 3 : 2,
+        className: type === "emergency" ? "emergency-circle" : "",
+      }).addTo(map);
+      circle.on("click", () => onEventClick(event));
+      refs.current.push(circle);
     });
 
     return () => {
@@ -479,15 +487,13 @@ export default function MapView() {
             className={`filter-btn ${filter === "disponibili" ? "filter-btn--active" : ""}`}
             onClick={() => { setFilter("disponibili"); setSearchQuery(""); }}
           >
-            <span className="filter-icon">👤</span>
-            Available
+            👤 Available
           </button>
           <button
             className={`filter-btn ${filter === "pot-ajuta" ? "filter-btn--active pot-ajuta-active" : ""}`}
             onClick={() => { setFilter("pot-ajuta"); setSearchQuery(""); }}
           >
-            <span className="filter-icon">🤝</span>
-            Can Help
+            🤝 Can Help
           </button>
         </div>
 
@@ -500,7 +506,7 @@ export default function MapView() {
         {isLoading && (
           <div className="map-loading">
             <div className="map-loading-dot" />
-            <span>Se incarca harta...</span>
+            <span>Se încarcă harta...</span>
           </div>
         )}
       </div>
