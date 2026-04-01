@@ -9,7 +9,7 @@ import "leaflet/dist/leaflet.css";
 import "./map.css";
 
 const DEFAULT_CENTER: [number, number] = [47.1585, 27.6014];
-const DEFAULT_ZOOM = 13;
+const DEFAULT_ZOOM = 12;
 const API = "http://localhost:5248";
 
 type FilterMode = "disponibili" | "pot-ajuta";
@@ -54,56 +54,20 @@ interface EventMarker {
   type: "skill" | "lend" | "emergency";
 }
 
-function makeUserIcon(color: string, shadow: string, offset: number) {
-  return L.divIcon({
-    className: "",
-    html: `<div class="map-marker" style="transform:translateX(${offset}px)">
-      <div class="marker-circle" style="--circle-color:${color};--circle-shadow:${shadow}"></div>
-    </div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -24],
-  });
-}
-
-function makeEventIcon(color: string, shadow: string, isEmergency = false) {
-  return L.divIcon({
-    className: "",
-    html: `<div class="map-marker">
-      <div class="marker-circle ${isEmergency ? "emergency-pulse" : ""}" style="--circle-color:${color};--circle-shadow:${shadow}"></div>
-    </div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -24],
-  });
-}
-
-const ICONS = {
-  skillOnly:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.6)",   0),
-  toolOnly:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.6)",  0),
-  bothSkill:    () => makeUserIcon("#FFD700", "rgba(255,215,0,0.6)",  -14),
-  bothTool:     () => makeUserIcon("#3B82F6", "rgba(59,130,246,0.6)", +14),
-  eventSkill:   () => makeEventIcon("#FFD700", "rgba(255,215,0,0.6)"),
-  eventLend:    () => makeEventIcon("#3B82F6", "rgba(59,130,246,0.6)"),
-  emergency:    () => makeEventIcon("#EF4444", "rgba(239,68,68,0.6)", true),
-};
-
 function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void }) {
   const router = useRouter();
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:5248/api/user/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API}/api/user/profile`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => setCurrentUserId(d.id));
   }, []);
 
   const handleContact = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5248/api/chat/conversations", {
+    const res = await fetch(`${API}/api/chat/conversations`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ otherUserId: user.id }),
@@ -115,6 +79,7 @@ function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void
 
   const isOwn = currentUserId === user.id;
   const name = user.fullName ?? user.email?.split("@")[0] ?? "User";
+
   return (
     <div className="pc-overlay" onClick={onClose}>
       <div className="pc-card" onClick={(e) => e.stopPropagation()}>
@@ -133,26 +98,32 @@ function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void
               {isOwn ? (
                 <span className="ec-your-post">Your profile</span>
               ) : (
-                <button className="ec-contact-btn" onClick={handleContact}>
-                  💬 Contact
-                </button>
+                <button className="ec-contact-btn" onClick={handleContact}>💬 Contact</button>
               )}
             </div>
           </div>
         </div>
-        {user.bio && <div className="pc-section bio-section"><p className="pc-bio">{user.bio}</p></div>}
+        {user.bio && (
+          <div className="pc-section bio-section">
+            <p className="pc-bio">{user.bio}</p>
+          </div>
+        )}
         {user.skills.length > 0 && (
           <div className="pc-section skills-section">
             <h3 className="pc-section-title skills-title">★ Skills</h3>
             <div className="pc-grid">
-              {user.skills.map((s, i) => <div key={i} className="pc-item"><span className="pc-dot skill-dot" />{s}</div>)}
+              {user.skills.map((s, i) => (
+                <div key={i} className="pc-item"><span className="pc-dot skill-dot" />{s}</div>
+              ))}
             </div>
           </div>
         )}
         {user.tools.length > 0 && (
           <div className="pc-section tools-section">
             <h3 className="pc-section-title tools-title">⚙ Tools & Resources</h3>
-            {user.tools.map((t, i) => <div key={i} className="pc-item"><span className="pc-dot tool-dot" />{t}</div>)}
+            {user.tools.map((t, i) => (
+              <div key={i} className="pc-item"><span className="pc-dot tool-dot" />{t}</div>
+            ))}
           </div>
         )}
       </div>
@@ -168,11 +139,9 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
   useEffect(() => {
     const token = localStorage.getItem("token");
     const h = { Authorization: `Bearer ${token}` };
-
     fetch(`${API}/api/user/profile`, { headers: h })
       .then((r) => r.json())
       .then((d) => setCurrentUserId(d.id));
-
     fetch(`${API}/api/user/${event.createdByUserId}`, { headers: h })
       .then((r) => { if (r.ok) return r.json(); return null; })
       .then((d) => { if (d) setAuthorTrustScore(d.trustScore ?? 0); })
@@ -193,17 +162,14 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
 
   const typeNumMap: Record<number, string> = { 0: "General", 1: "Emergency", 2: "Skill", 3: "Lend" };
   const typeStr = typeof event.type === "number" ? typeNumMap[event.type] : event.type;
-
   const typeMap: Record<string, { label: string; color: string; bg: string }> = {
-    Emergency: { label: "🚨 Emergency", color: "#EF4444", bg: "rgba(239,68,68,0.15)" },
-    Skill:     { label: "★ Skill",      color: "#FFD700", bg: "rgba(255,215,0,0.15)" },
-    Lend:      { label: "⚙ Lend",       color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
-    General:   { label: "📌 General",   color: "#9ca3af", bg: "rgba(156,163,175,0.15)" },
+    Emergency: { label: "Emergency", color: "#EF4444", bg: "rgba(239,68,68,0.15)" },
+    Skill:     { label: "Skill",      color: "#FFD700", bg: "rgba(255,215,0,0.15)" },
+    Lend:      { label: "Lend",       color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
   };
   const t = typeMap[typeStr ?? "Skill"] ?? typeMap["Skill"];
   const name = event.createdByFullName || event.createdByEmail?.split("@")[0] || "Unknown";
   const isOwn = currentUserId !== null && currentUserId === event.createdByUserId;
-
   const tagsArray: string[] = Array.isArray(event.tags)
     ? event.tags
     : typeof event.tags === "string" && event.tags.trim() !== ""
@@ -213,7 +179,6 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
   return (
     <div className="pc-overlay" onClick={onClose}>
       <div className="pc-card" onClick={(e) => e.stopPropagation()}>
-
         <div className="pc-header">
           <div className="pc-avatar">
             <Image src="/profile.png" width={64} height={64} alt="profile" className="object-cover w-full h-full" />
@@ -229,9 +194,7 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
               {isOwn ? (
                 <span className="ec-your-post">Your post</span>
               ) : (
-                <button className="ec-contact-btn" onClick={handleContact}>
-                  💬 Contact
-                </button>
+                <button className="ec-contact-btn" onClick={handleContact}>💬 Contact</button>
               )}
             </div>
           </div>
@@ -239,20 +202,15 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
             {t.label}
           </div>
         </div>
-
         {event.imageUrl && (
           <div className="ec-image-wrap">
             <img src={`${API}${event.imageUrl}`} alt="event" className="ec-image" />
           </div>
         )}
-
         <div className="pc-section bio-section">
           <p className="pc-bio" dangerouslySetInnerHTML={{ __html: event.description }} />
-          {event.type === "Emergency" && (
-            <span className="ec-verified">Verified info</span>
-          )}
+          {typeStr === "Emergency" && <span className="ec-verified">Verified info</span>}
         </div>
-
         {tagsArray.length > 0 && (
           <div className="pc-section" style={{ border: `2px solid ${t.color}` }}>
             <h3 className="pc-section-title" style={{ color: t.color, marginBottom: 10 }}>
@@ -260,14 +218,11 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
             </h3>
             <div className="ec-tags">
               {tagsArray.map((tag, i) => (
-                <span key={i} className="ec-tag" style={{ color: t.color, borderColor: t.color }}>
-                  {tag}
-                </span>
+                <span key={i} className="ec-tag" style={{ color: t.color, borderColor: t.color }}>{tag}</span>
               ))}
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
@@ -292,10 +247,14 @@ function MarkersLayer({
     refs.current = [];
 
     userMarkers.forEach(({ user, lat, lng, hasSkills, hasTools }) => {
+      const seed = user.id * 9301 + 49297;
+      const rLat = ((seed % 233280) / 233280 - 0.5) * 0.001;
+      const rLng = (((seed * 6971) % 233280) / 233280 - 0.5) * 0.0015;
+
       const addCircle = (color: string, offsetLng = 0) => {
-        const circle = L.circle([lat, lng + offsetLng], {
-          radius: 250,
-          color: color,
+        const circle = L.circle([lat + rLat, lng + rLng + offsetLng], {
+          radius: 300,
+          color,
           fillColor: color,
           fillOpacity: 0.25,
           opacity: 0.6,
@@ -317,9 +276,12 @@ function MarkersLayer({
 
     eventMarkers.forEach(({ event, type }) => {
       const color = type === "emergency" ? "#EF4444" : type === "skill" ? "#FFD700" : "#3B82F6";
-      const circle = L.circle([event.latitude, event.longitude], {
-        radius: 250,
-        color: color,
+      const seed = event.id * 6271 + 12347;
+      const rLat = ((seed % 233280) / 233280 - 0.5) * 0.001;
+      const rLng = (((seed * 4421) % 233280) / 233280 - 0.5) * 0.0015;
+      const circle = L.circle([event.latitude + rLat, event.longitude + rLng], {
+        radius: 300,
+        color,
         fillColor: color,
         fillOpacity: type === "emergency" ? 0.35 : 0.25,
         opacity: type === "emergency" ? 0.8 : 0.6,
@@ -419,7 +381,6 @@ export default function MapView() {
   const handleEventClick = useCallback((e: EventItem) => { setSelectedEvent(e); setSelectedUser(null); }, []);
 
   const q = searchQuery.toLowerCase().trim();
-
   const filteredUserMarkers = q
     ? userMarkers.filter(({ user }) =>
         user.skills.some((s) => s.toLowerCase().includes(q)) ||
@@ -506,7 +467,7 @@ export default function MapView() {
         {isLoading && (
           <div className="map-loading">
             <div className="map-loading-dot" />
-            <span>Se încarcă harta...</span>
+            <span>Se incarca harta...</span>
           </div>
         )}
       </div>
