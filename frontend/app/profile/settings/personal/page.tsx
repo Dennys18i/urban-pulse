@@ -17,6 +17,8 @@ const MapPicker = dynamic(() => import("@/components/profile/MapPicker"), {
 export default function PersonalInfoPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -29,10 +31,17 @@ export default function PersonalInfoPage() {
       .then((data) => {
         setPhoneNumber(data.phoneNumber ?? "");
         setAddress(data.address ?? "");
+        setLat(data.latitude ?? null);
+        setLng(data.longitude ?? null);
       });
   }, []);
 
-  const autoSave = (updatedPhone: string, updatedAddress: string) => {
+  const autoSave = (
+    updatedPhone: string,
+    updatedAddress: string,
+    updatedLat: number | null,
+    updatedLng: number | null
+  ) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
       const token = localStorage.getItem("token");
@@ -42,16 +51,23 @@ export default function PersonalInfoPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ phoneNumber: updatedPhone, address: updatedAddress }),
+        body: JSON.stringify({
+          phoneNumber: updatedPhone,
+          address: updatedAddress,
+          latitude: updatedLat,
+          longitude: updatedLng,
+        }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }, 1000);
   };
 
-  const handleMapSelect = (addr: string) => {
+  const handleMapSelect = (addr: string, selectedLat: number, selectedLng: number) => {
     setAddress(addr);
-    autoSave(phoneNumber, addr);
+    setLat(selectedLat);
+    setLng(selectedLng);
+    autoSave(phoneNumber, addr, selectedLat, selectedLng);
   };
 
   return (
@@ -68,7 +84,7 @@ export default function PersonalInfoPage() {
           onChange={(e) => {
             const value = e.target.value.replace(/[^0-9+\s]/g, "");
             setPhoneNumber(value);
-            autoSave(value, address);
+            autoSave(value, address, lat, lng);
           }}
         />
 
@@ -79,7 +95,7 @@ export default function PersonalInfoPage() {
           value={address}
           onChange={(e) => {
             setAddress(e.target.value);
-            autoSave(phoneNumber, e.target.value);
+            autoSave(phoneNumber, e.target.value, lat, lng);
           }}
         />
 

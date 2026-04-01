@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UrbanPulse.Core.DTOs.User
+﻿namespace UrbanPulse.Core.DTOs.User
 {
     public class UserProfileDto
     {
@@ -15,10 +9,12 @@ namespace UrbanPulse.Core.DTOs.User
         public string? Address { get; set; }
         public string? Bio { get; set; }
         public List<string> Skills { get; set; } = new();
-        public bool IsVerified { get; set; }
         public List<string> Tools { get; set; } = new();
         public string Role { get; set; } = string.Empty;
+        public bool IsVerified { get; set; }
         public double TrustScore { get; set; }
         public DateTime CreatedAt { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

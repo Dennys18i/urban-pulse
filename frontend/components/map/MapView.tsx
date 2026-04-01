@@ -23,6 +23,8 @@ interface UserProfile {
   tools: string[];
   trustScore: number;
   address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface EventItem {
@@ -93,18 +95,6 @@ const ICONS = {
   eventLend:    () => makeEventIcon("#3B82F6", "rgba(59,130,246,0.6)", "⚙"),
   emergency:    () => makeEventIcon("#EF4444", "rgba(239,68,68,0.6)",  "!"),
 };
-
-async function geocode(address: string): Promise<[number, number] | null> {
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-      { headers: { "Accept-Language": "ro,en" } }
-    );
-    const data = await res.json();
-    if (data.length > 0) return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  } catch {}
-  return null;
-}
 
 function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void }) {
   const router = useRouter();
@@ -375,10 +365,10 @@ export default function MapView() {
 
         const results: UserMarker[] = [];
         for (const entry of map.values()) {
-          if (!entry.user.address) continue;
-          await new Promise((r) => setTimeout(r, 1100));
-          const coords = await geocode(entry.user.address);
-          if (coords) results.push({ ...entry, lat: coords[0], lng: coords[1] });
+          const { user } = entry;
+          if (user.latitude && user.longitude) {
+            results.push({ ...entry, lat: user.latitude, lng: user.longitude });
+          }
         }
         setUserMarkers(results);
       } finally {
