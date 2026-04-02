@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UrbanPulse.Core.Entities
+﻿namespace UrbanPulse.Core.Entities
 {
     public class User : BaseEntity
     {
@@ -20,5 +14,7 @@ namespace UrbanPulse.Core.Entities
         public double TrustScore { get; set; } = 0;
         public string? Skills { get; set; }
         public string? Tools { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

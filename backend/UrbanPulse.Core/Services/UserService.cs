@@ -19,6 +19,18 @@ public class UserService : IUserService
         return MapToDto(user);
     }
 
+    public async Task<List<UserProfileDto>> GetUsersWithSkillsAsync()
+    {
+        var users = await _userRepository.GetUsersWithSkillsAsync();
+        return users.Select(MapToDto).ToList();
+    }
+
+    public async Task<List<UserProfileDto>> GetUsersWithToolsAsync()
+    {
+        var users = await _userRepository.GetUsersWithToolsAsync();
+        return users.Select(MapToDto).ToList();
+    }
+
     public async Task<UserProfileDto?> UpdateProfileAsync(int userId, UpdateProfileDto dto)
     {
         var user = await _userRepository.GetByIdAsync(userId);
@@ -28,6 +40,8 @@ public class UserService : IUserService
         if (dto.PhoneNumber != null) user.PhoneNumber = dto.PhoneNumber;
         if (dto.Address != null) user.Address = dto.Address;
         if (dto.Bio != null) user.Bio = dto.Bio;
+        if (dto.Latitude.HasValue) user.Latitude = dto.Latitude;
+        if (dto.Longitude.HasValue) user.Longitude = dto.Longitude;
         user.Skills = dto.Skills.Count > 0 ? string.Join(",", dto.Skills) : null;
         user.Tools = dto.Tools.Count > 0 ? string.Join(",", dto.Tools) : null;
         user.UpdatedAt = DateTime.UtcNow;
@@ -67,6 +81,8 @@ public class UserService : IUserService
         Role = user.Role,
         IsVerified = user.IsVerified,
         TrustScore = user.TrustScore,
-        CreatedAt = user.CreatedAt
+        CreatedAt = user.CreatedAt,
+        Latitude = user.Latitude,
+        Longitude = user.Longitude,
     };
 }
