@@ -20,6 +20,14 @@ public class UserController : ControllerBase
         _eventService = eventService;
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var profile = await _userService.GetProfileAsync(id);
+        if (profile == null) return NotFound();
+        return Ok(profile);
+    }
+
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
     {
@@ -27,6 +35,20 @@ public class UserController : ControllerBase
         var profile = await _userService.GetProfileAsync(userId);
         if (profile == null) return NotFound();
         return Ok(profile);
+    }
+
+    [HttpGet("with-skills")]
+    public async Task<IActionResult> GetUsersWithSkills()
+    {
+        var users = await _userService.GetUsersWithSkillsAsync();
+        return Ok(users);
+    }
+
+    [HttpGet("with-tools")]
+    public async Task<IActionResult> GetUsersWithTools()
+    {
+        var users = await _userService.GetUsersWithToolsAsync();
+        return Ok(users);
     }
 
     [HttpGet("my-posts")]
