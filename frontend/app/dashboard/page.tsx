@@ -86,29 +86,31 @@ function DesktopWeatherCard() {
 
   return (
     <div
-      className={`rounded-2xl p-8 h-35 flex items-center justify-between ${
+      className={`rounded-2xl p-8 h-30 flex items-center justify-between relative ${
         weather?.isSevere ? "bg-red-emergency" : "bg-weather-nice"
       }`}
     >
-      <div className="flex flex-col gap-2">
-        <p className="text-white font-bold text-3xl leading-tight tracking-tight">
+      <div className="flex flex-col gap-1">
+        <p className="text-white font-bold text-2xl leading-tight tracking-tight">
           {weather ? `${weather.temp}° C` : "--° C"}
         </p>
-        <p className="text-white font-normal text-2xl leading-tight tracking-tight">
+        <p className="text-white font-normal text-xl leading-tight tracking-tight">
           {weather ? weather.description : "Loading..."}
         </p>
       </div>
-      <img
-        src={
-          weather
-            ? `https://openweathermap.org/img/w/${weather.icon}.png`
-            : "/sun.svg"
-        }
-        width={90}
-        height={90}
-        alt="weather icon"
-        className="object-contain"
-      />
+      <div className="w-25 h-25 absolute right-2">
+        <img
+          src={
+            weather
+              ? `https://openweathermap.org/img/w/${weather.icon}.png`
+              : "/sun.svg"
+          }
+          width={90}
+          height={90}
+          alt="weather icon"
+          className="object-contain w-full h-full"
+        />
+      </div>
     </div>
   );
 }
@@ -169,7 +171,7 @@ export default function DashboardPage() {
     <div className="w-full pb-[8vh] lg:pb-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
       {" "}
       {/* ── Desktop 3-column wrapper ── */}
-      <div className="lg:flex lg:gap-8 xl:gap-14 lg:items-stretch lg:h-full lg:overflow-hidden">
+      <div className="lg:flex lg:px-6 lg:gap-8 xl:gap-14 lg:items-stretch lg:h-full lg:overflow-hidden">
         {" "}
         {/* LEFT SIDEBAR — Desktop only */}
         <aside className="hidden lg:flex lg:flex-col lg:flex-1">
@@ -284,11 +286,11 @@ export default function DashboardPage() {
           <DesktopWeatherCard />
 
           {/* Event card */}
-          <div className="bg-weather-nice rounded-2xl p-8 h-35 flex flex-col justify-center gap-2">
-            <p className="text-white font-bold text-3xl leading-tight tracking-tight">
+          <div className="bg-weather-nice rounded-2xl p-8 h-30 flex flex-col justify-center gap-1">
+            <p className="text-white font-bold text-2xl leading-tight tracking-tight">
               Event
             </p>
-            <p className="text-white font-normal text-2xl leading-tight tracking-tight">
+            <p className="text-white font-normal text-xl leading-tight tracking-tight">
               Game Night
             </p>
           </div>
