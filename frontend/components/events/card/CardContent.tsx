@@ -7,7 +7,7 @@ export default function CardContent({ description, isVerified }: CardContentProp
   return (
     <div className="flex flex-col gap-2">
       <div
-        className="text-white text-sm leading-relaxed"
+        className="text-white text-sm lg:text-lg leading-relaxed"
         dangerouslySetInnerHTML={{ __html: description }}
       />
       {isVerified && (

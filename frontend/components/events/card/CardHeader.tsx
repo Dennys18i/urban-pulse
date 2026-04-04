@@ -25,30 +25,30 @@ export default function CardHeader({
 
   return (
     <div
-      className={`w-full h-17.5 p-5 z-10 flex justify-between items-center bg-secondary rounded-4xl ${imageUrl ? "rounded-b-4xl" : "rounded-b-none"}`}
+      className={`w-full h-17.5 lg:h-20 p-5 lg:px-10 z-10 flex justify-between items-center bg-secondary rounded-3xl ${imageUrl ? "rounded-b-3xl" : "rounded-b-none"}`}
     >
       {/* image + name */}
       <div className="flex gap-4 justify-center items-center">
-        <div className="w-10 h-10">
+        <div className="size-10 lg:size-11">
           <Image
             src="/profile.png"
             width={40}
             height={40}
             alt="profile_image"
-            className="rounded-full"
+            className="rounded-full w-full h-full"
           />
         </div>
         <div className="flex flex-col justify-center items-start">
           <div className="flex items-center">
-            <p className="w-full font-bold">Niklaus</p>
+            <p className="w-full font-bold lg:text-lg">Niklaus</p>
             {isVerifiedUser && (
               <BadgeCheck
-                size={18}
+                size={20}
                 className="text-green-light fill-green-light/20"
               />
             )}
           </div>
-          <span className="text-white/40 text-xs">{date}</span>
+          <span className="text-white/40 text-xs lg:text-sm">{date}</span>
         </div>
       </div>
       {/* menu */}
@@ -67,16 +67,16 @@ export default function CardHeader({
               onClick={() => setShowMenu(!showMenu)}
               className="p-1 transition-colors hover:text-white/70 cursor-pointer"
             >
-              <MoreVertical size={22} className="text-white" />
+              <MoreVertical size={24} className="text-white" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-full bg-background border border-white/20 rounded-full overflow-hidden">
+              <div className="absolute right-0 top-full bg-background border border-red-emergency/60 rounded-full overflow-hidden">
                 <button
                   onClick={() => {
                     console.log("Report action triggered");
                     setShowMenu(false);
                   }}
-                  className="w-full text-center px-6 py-2 text-red-emergency font-bold text-sm hover:bg-white/5 transition-colors cursor-pointer"
+                  className="w-full text-center px-6 py-2 text-red-emergency font-bold text-sm hover:bg-white/5 rounded-full transition-colors cursor-pointer"
                 >
                   Report
                 </button>
