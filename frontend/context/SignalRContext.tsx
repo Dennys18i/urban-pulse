@@ -1,50 +1,59 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import * as signalR from "@microsoft/signalr";
 
 interface SignalRContextType {
   connection: signalR.HubConnection | null;
+  notificationConnection: signalR.HubConnection | null;
 }
 
-const SignalRContext = createContext<SignalRContextType>({ connection: null });
+const SignalRContext = createContext<SignalRContextType>({
+  connection: null,
+  notificationConnection: null,
+});
 
-export const SignalRProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null,
-  );
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password"];
+
+export const SignalRProvider = ({ children }: { children: React.ReactNode }) => {
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+  const [notificationConnection, setNotificationConnection] = useState<signalR.HubConnection | null>(null);
+  const pathname = usePathname();
+
+  const isPublic = PUBLIC_ROUTES.includes(pathname);
 
   useEffect(() => {
-    const newConnection = new signalR.HubConnectionBuilder()
+    if (isPublic) return;
+
+    const eventsConn = new signalR.HubConnectionBuilder()
       .withUrl("http://localhost:5248/hubs/events")
       .withAutomaticReconnect()
       .build();
 
-    setConnection(newConnection);
+    setConnection(eventsConn);
+    eventsConn.start().catch((err) => console.error("Events SignalR error:", err));
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      const notifConn = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5248/hubs/notifications", {
+          accessTokenFactory: () => localStorage.getItem("token") ?? "",
+        })
+        .withAutomaticReconnect()
+        .build();
+
+      setNotificationConnection(notifConn);
+      notifConn.start().catch((err) => console.error("Notifications SignalR error:", err));
+    }
 
     return () => {
-      newConnection.stop();
+      eventsConn.stop();
     };
-  }, []);
-
-  useEffect(() => {
-    if (
-      connection &&
-      connection.state === signalR.HubConnectionState.Disconnected
-    ) {
-      connection
-        .start()
-        .then(() => console.log(""))
-        .catch((err) => console.error("🔴 Eroare SignalR Globală: ", err));
-    }
-  }, [connection]);
+  }, [isPublic]);
 
   return (
-    <SignalRContext.Provider value={{ connection }}>
+    <SignalRContext.Provider value={{ connection, notificationConnection }}>
       {children}
     </SignalRContext.Provider>
   );

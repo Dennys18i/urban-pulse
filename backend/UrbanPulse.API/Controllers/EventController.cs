@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using UrbanPulse.API.Hubs;
 using UrbanPulse.Core.DTOs.Events;
-using UrbanPulse.Core.Interfaces;
+using UrbanPulse.Core.DTOs.Notifications;
 using UrbanPulse.Core.Entities;
+using UrbanPulse.Core.Interfaces;
 
 namespace UrbanPulse.API.Controllers
 {
@@ -16,13 +17,25 @@ namespace UrbanPulse.API.Controllers
     {
         private readonly IEventService _eventService;
         private readonly IHubContext<EventHub> _hubContext;
+        private readonly IHubContext<NotificationHub> _notificationHub;
         private readonly IConversationRepository _conversationRepository;
+        private readonly INotificationService _notificationService;
+        private readonly IUserRepository _userRepository;
 
-        public EventController(IEventService eventService, IHubContext<EventHub> hubContext, IConversationRepository conversationRepository)
+        public EventController(
+            IEventService eventService,
+            IHubContext<EventHub> hubContext,
+            IHubContext<NotificationHub> notificationHub,
+            IConversationRepository conversationRepository,
+            INotificationService notificationService,
+            IUserRepository userRepository)
         {
             _eventService = eventService;
             _hubContext = hubContext;
+            _notificationHub = notificationHub;
             _conversationRepository = conversationRepository;
+            _notificationService = notificationService;
+            _userRepository = userRepository;
         }
 
         [HttpPost]
@@ -31,7 +44,6 @@ namespace UrbanPulse.API.Controllers
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             string? imageUrl = null;
-
             if (file != null && file.Length > 0)
             {
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -41,18 +53,71 @@ namespace UrbanPulse.API.Controllers
 
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 Directory.CreateDirectory(uploadsFolder);
-
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsFolder, fileName);
-
                 using (var stream = new FileStream(filePath, FileMode.Create))
                     await file.CopyToAsync(stream);
-
                 imageUrl = $"/uploads/{fileName}";
             }
 
             var result = await _eventService.CreateEventAsync(dto, userId, imageUrl);
             await _hubContext.Clients.All.SendAsync("NewEvent", result);
+
+            var poster = await _userRepository.GetByIdAsync(userId);
+            var posterName = poster?.FullName ?? poster?.Email?.Split('@')[0] ?? "Someone";
+
+            if (dto.Type == EventType.Skill || dto.Type == EventType.Lend)
+            {
+                var keyword = dto.Tags.FirstOrDefault() ?? "";
+                if (!string.IsNullOrWhiteSpace(keyword) && dto.Latitude != 0 && dto.Longitude != 0)
+                {
+                    var matchingUsers = await _userRepository.GetUsersMatchingSkillOrToolNearbyAsync(
+                        keyword, dto.Latitude, dto.Longitude, radiusKm: 2.0);
+
+                    foreach (var user in matchingUsers)
+                    {
+                        if (user.Id == userId) continue;
+
+                        var notification = await _notificationService.SendAsync(new CreateNotificationDto
+                        {
+                            UserId = user.Id,
+                            Title = posterName,
+                            Body = dto.Type == EventType.Skill
+                                ? "Skill Alert: Your skills are a match."
+                                : "Lend Alert: Your resources are a match.",
+                            Type = NotificationType.HeroAlert,
+                            ActionUrl = $"/dashboard?eventId={result.Id}",
+                            RelatedEventId = result.Id,
+                        });
+
+                        await _notificationHub.Clients.User(user.Id.ToString())
+                            .SendAsync("NewNotification", notification);
+                    }
+                }
+            }
+            if (dto.Type == EventType.Emergency)
+            {
+                var allUsers = await _userRepository.GetAllUsersAsync();
+
+                foreach (var user in allUsers)
+                {
+                    if (user.Id == userId) continue;
+                    Console.WriteLine($"Sending to user {user.Id}");
+
+                    var notification = await _notificationService.SendAsync(new CreateNotificationDto
+                    {
+                        UserId = user.Id,
+                        Title = "Emergency Alert 🚨",
+                        Body = $"{posterName} reported an emergency nearby. Stay safe!",
+                        Type = NotificationType.Emergency,
+                        ActionUrl = $"/dashboard?eventId={result.Id}",
+                        RelatedEventId = result.Id,
+                    });
+
+                    await _notificationHub.Clients.User(user.Id.ToString())
+                        .SendAsync("NewNotification", notification);
+                }
+            }
 
             return Ok(result);
         }
