@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using UrbanPulse.API.Hubs;
 using UrbanPulse.Core.DTOs.Comments;
+using UrbanPulse.Core.DTOs.Notifications;
 using UrbanPulse.Core.Entities;
 using UrbanPulse.Core.Interfaces;
 
@@ -15,12 +16,26 @@ using UrbanPulse.Core.Interfaces;
 public class CommentController : ControllerBase
 {
     private readonly ICommentRepository _commentRepository;
+    private readonly IEventRepository _eventRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly INotificationService _notificationService;
     private readonly IHubContext<EventHub> _hubContext;
+    private readonly IHubContext<NotificationHub> _notificationHub;
 
-    public CommentController(ICommentRepository commentRepository, IHubContext<EventHub> hubContext)
+    public CommentController(
+        ICommentRepository commentRepository,
+        IEventRepository eventRepository,
+        IUserRepository userRepository,
+        INotificationService notificationService,
+        IHubContext<EventHub> hubContext,
+        IHubContext<NotificationHub> notificationHub)
     {
         _commentRepository = commentRepository;
+        _eventRepository = eventRepository;
+        _userRepository = userRepository;
+        _notificationService = notificationService;
         _hubContext = hubContext;
+        _notificationHub = notificationHub;
     }
 
     [HttpGet]
@@ -53,7 +68,6 @@ public class CommentController : ControllerBase
         };
 
         await _commentRepository.AddAsync(comment);
-
         var added = await _commentRepository.GetByIdAsync(comment.Id);
 
         var response = new CommentResponseDto
@@ -68,6 +82,27 @@ public class CommentController : ControllerBase
         };
 
         await _hubContext.Clients.All.SendAsync("NewComment", response);
+
+        // Notificare catre autorul postarii (doar daca nu e acelasi user)
+        var ev = await _eventRepository.GetByIdAsync(eventId);
+        if (ev != null && ev.CreatedByUserId != userId)
+        {
+            var commenter = await _userRepository.GetByIdAsync(userId);
+            var commenterName = commenter?.FullName ?? commenter?.Email?.Split('@')[0] ?? "Someone";
+
+            var notification = await _notificationService.SendAsync(new CreateNotificationDto
+            {
+                UserId = ev.CreatedByUserId,
+                Title = commenterName,
+                Body = $"commented on your post: \"{dto.Text.Substring(0, Math.Min(dto.Text.Length, 50))}{(dto.Text.Length > 50 ? "..." : "")}\"",
+                Type = NotificationType.Comment,
+                ActionUrl = $"/dashboard?eventId={eventId}",
+                RelatedEventId = eventId,
+            });
+
+            await _notificationHub.Clients.User(ev.CreatedByUserId.ToString())
+                .SendAsync("NewNotification", notification);
+        }
 
         return Ok(response);
     }

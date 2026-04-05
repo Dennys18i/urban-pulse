@@ -5,6 +5,7 @@ import GoBackButton from "../ui/GoBackButton";
 import ProfileRoundButton from "../ui/ProfileRoundButton";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSignalR } from "@/context/SignalRContext";
 
 interface TopBarProps {
   back: boolean;
@@ -15,6 +16,7 @@ interface TopBarProps {
 
 export default function TopBar({ back, notifications, settings, addPost }: TopBarProps) {
   const [unreadCount, setUnreadCount] = useState(0);
+  const { notificationConnection } = useSignalR();
 
   useEffect(() => {
     if (!notifications) return;
@@ -32,6 +34,13 @@ export default function TopBar({ back, notifications, settings, addPost }: TopBa
     const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, [notifications]);
+
+  useEffect(() => {
+    if (!notificationConnection) return;
+    const handler = () => setUnreadCount((prev) => prev + 1);
+    notificationConnection.on("NewNotification", handler);
+    return () => notificationConnection.off("NewNotification", handler);
+  }, [notificationConnection]);
 
   return (
     <div className={`flex ${back || addPost ? "justify-between" : "justify-end"} ${addPost ? "mb-[calc(15vh-78px)]" : ""} items-center`}>
