@@ -60,37 +60,34 @@ export default function CardFooter({
       <div className="flex items-center gap-5 mt-3">
         <button
           onClick={onLike}
-          className="flex items-center gap-1.5 transition-transform active:scale-90"
+          className="flex items-center gap-1.5 transition-transform active:scale-90 cursor-pointer"
         >
           <ThumbsUp
             size={22}
-            className={
-              liked ? "fill-green-light text-green-light" : "text-green-light"
-            }
+            className={`lg:size-7 ${liked ? "fill-green-light text-green-light" : "text-green-light"}`}
           />
-          <span className="text-white font-bold">{likes}</span>
+          <span className="text-white font-bold lg:text-lg">{likes}</span>
         </button>
 
         <button
           onClick={onComment}
-          className="flex items-center gap-1.5 transition-transform active:scale-90"
+          className="flex items-center gap-1.5 transition-transform active:scale-90 cursor-pointer"
         >
           <MessageCircle
             size={22}
-            className="fill-green-light text-green-light"
+            className="lg:size-7 fill-green-light text-green-light"
           />
-          <span className="text-white font-bold">{comments}</span>
+          <span className="text-white font-bold lg:text-lg">{comments}</span>
         </button>
 
         <button
           onClick={onSave}
-          className="flex items-center transition-transform active:scale-90"
+          className="flex items-center transition-transform active:scale-90 cursor-pointer"
         >
           <Bookmark
             size={22}
-            className={
-              saved ? "fill-green-light text-green-light" : "text-green-light"
-            }
+            className={`lg:size-7 ${saved ? "fill-green-light text-green-light" : "text-green-light"}
+  `}
           />
         </button>
       </div>
