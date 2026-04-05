@@ -8,6 +8,7 @@ import EventFilters from "@/components/dashboard/EventFilters";
 import { Event, EventType } from "@/types/Event";
 import { EVENT_TAG_STYLES } from "@/lib/constants";
 import SearchBar from "@/components/search/SearchBar";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
 // ── Types ──
 type TabType = "Posts" | "People";
@@ -161,116 +162,118 @@ export default function SearchPage() {
   );
 
   return (
-    <div className="w-full flex flex-col gap-4 animate-fade-up pb-32">
-      {/* ── Search bar ── */}
-      <SearchBar value={query} onChange={setQuery} placeholder="Search..." />
+    <ThreeColumnLayout>
+      <div className="w-full flex flex-col gap-4 animate-fade-up pb-32 lg:pb-0">
+        {/* ── Search bar ── */}
+        <SearchBar value={query} onChange={setQuery} placeholder="Search..." />
 
-      {/* ── Tabs ── */}
-      <div className="flex w-full border-b border-white/10">
-        {(["Posts", "People"] as TabType[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 pb-2 text-center transition-all cursor-pointer ${
-              activeTab === tab
-                ? "text-white border-b-2 border-white font-bold"
-                : "text-white/40 border-b-2 border-transparent"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* ── POSTS TAB ── */}
-      {activeTab === "Posts" && (
-        <>
-          <EventFilters
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-          />
-
-          <div className="flex flex-col gap-2">
-            {loadingPosts && (
-              <p className="text-white/40 text-sm text-center mt-10">
-                Searching posts...
-              </p>
-            )}
-
-            {!loadingPosts && filteredEvents.length === 0 && (
-              <p className="text-white/40 text-sm text-center mt-10">
-                {query.trim()
-                  ? "No posts found for this search."
-                  : "No posts available."}
-              </p>
-            )}
-
-            {filteredEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                {...(isAdmin && {
-                  onViewInsights: handleViewInsights,
-                  flagCount: 0,
-                })}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* ── PEOPLE TAB ── */}
-      {activeTab === "People" && (
-        <div className="flex flex-col gap-1">
-          {loadingPosts && (
-            <p className="text-white/40 text-sm text-center mt-10">
-              Searching people...
-            </p>
-          )}
-
-          {!loadingPosts && users.length === 0 && (
-            <p className="text-white/40 text-sm text-center mt-10">
-              {query.trim()
-                ? "No people found for this search."
-                : "No users available."}
-            </p>
-          )}
-
-          {users.map((user) => (
+        {/* ── Tabs ── */}
+        <div className="flex w-full border-b border-white/10">
+          {(["Posts", "People"] as TabType[]).map((tab) => (
             <button
-              key={user.id}
-              onClick={() => router.push(`/profile/${user.id}`)}
-              className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer"
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 pb-2 text-center transition-all cursor-pointer ${
+                activeTab === tab
+                  ? "text-white border-b-2 border-white font-bold"
+                  : "text-white/40 border-b-2 border-transparent"
+              }`}
             >
-              {/* Avatar */}
-              <div className="relative w-14 h-14 shrink-0">
-                {user.avatarUrl ? (
-                  <Image
-                    src={user.avatarUrl}
-                    alt={user.fullName ?? user.email}
-                    width={56}
-                    height={56}
-                    className="rounded-full object-cover w-14 h-14"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center">
-                    <span className="text-white/60 text-sm font-bold">
-                      {getInitials(user.fullName ?? user.email)}
-                    </span>
-                  </div>
-                )}
-                {user.isOnline && (
-                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-background" />
-                )}
-              </div>
-
-              <span className="text-white font-semibold text-base truncate">
-                {user.fullName ?? user.email.split("@")[0]}
-              </span>
+              {tab}
             </button>
           ))}
         </div>
-      )}
-    </div>
+
+        {/* ── POSTS TAB ── */}
+        {activeTab === "Posts" && (
+          <>
+            <EventFilters
+              activeFilter={activeFilter}
+              setActiveFilter={setActiveFilter}
+            />
+
+            <div className="flex flex-col gap-2">
+              {loadingPosts && (
+                <p className="text-white/40 text-sm text-center mt-10">
+                  Searching posts...
+                </p>
+              )}
+
+              {!loadingPosts && filteredEvents.length === 0 && (
+                <p className="text-white/40 text-sm text-center mt-10">
+                  {query.trim()
+                    ? "No posts found for this search."
+                    : "No posts available."}
+                </p>
+              )}
+
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  {...(isAdmin && {
+                    onViewInsights: handleViewInsights,
+                    flagCount: 0,
+                  })}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ── PEOPLE TAB ── */}
+        {activeTab === "People" && (
+          <div className="flex flex-col gap-1">
+            {loadingPosts && (
+              <p className="text-white/40 text-sm text-center mt-10">
+                Searching people...
+              </p>
+            )}
+
+            {!loadingPosts && users.length === 0 && (
+              <p className="text-white/40 text-sm text-center mt-10">
+                {query.trim()
+                  ? "No people found for this search."
+                  : "No users available."}
+              </p>
+            )}
+
+            {users.map((user) => (
+              <button
+                key={user.id}
+                onClick={() => router.push(`/profile/${user.id}`)}
+                className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                {/* Avatar */}
+                <div className="relative w-14 h-14 shrink-0">
+                  {user.avatarUrl ? (
+                    <Image
+                      src={user.avatarUrl}
+                      alt={user.fullName ?? user.email}
+                      width={56}
+                      height={56}
+                      className="rounded-full object-cover w-14 h-14"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center">
+                      <span className="text-white/60 text-sm font-bold">
+                        {getInitials(user.fullName ?? user.email)}
+                      </span>
+                    </div>
+                  )}
+                  {user.isOnline && (
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-background" />
+                  )}
+                </div>
+
+                <span className="text-white font-semibold text-base truncate">
+                  {user.fullName ?? user.email.split("@")[0]}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </ThreeColumnLayout>
   );
 }
