@@ -11,11 +11,12 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import dynamic from "next/dynamic";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
 const MapPicker = dynamic(() => import("@/components/profile/MapPicker"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[280px] rounded-2xl bg-[#1a1a1a] flex items-center justify-center">
+    <div className="w-full h-70 rounded-2xl bg-[#1a1a1a] flex items-center justify-center">
       <p className="text-white/30 text-sm">Loading map...</p>
     </div>
   ),
@@ -183,12 +184,13 @@ export default function AddPostPage() {
   if (loadingUser) return <div className="text-white text-center mt-20">Loading...</div>;
 
   return (
-    <div className="w-full pb-[8vh] flex flex-col">
+    <ThreeColumnLayout>
+    <div className="w-full pb-[8vh] lg:pb-0 flex flex-col">
       {/* header buttons */}
       <div className="flex items-center justify-between mb-10">
         <button
           onClick={() => router.back()}
-          className="border border-red-emergency text-red-emergency font-bold w-30 h-11 rounded-xl cursor-pointer hover:bg-white/5 transition-colors duration-200"
+          className="bg-red-emergency text-white font-bold w-30 h-11 rounded-xl cursor-pointer hover:bg-red-emergency/80 transition-colors duration-100"
         >
           Discard
         </button>
@@ -328,5 +330,6 @@ export default function AddPostPage() {
         </div>
       )}
     </div>
+    </ThreeColumnLayout>
   );
 }

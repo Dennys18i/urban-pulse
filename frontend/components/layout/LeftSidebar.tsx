@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Search, Map, MessageCircle } from "lucide-react";
+import { Plus, Search, Map, MessageCircle, PawPrint } from "lucide-react";
 
 function SidebarNavItem({
   href,
@@ -71,6 +71,28 @@ export default function LeftSidebar() {
           label="Chat"
         />
       </div>
+
+      <div className="h-14" />
+
+      {/* <SidebarNavItem
+        href="/pets"
+        icon={<PawPrint size={24} className="text-white" />}
+        label="Pets"
+      /> */}
+
+      <Link
+        href={"/pets"}
+        className="flex items-center gap-5 h-11 transition-opacity hover:opacity-80"
+      >
+        <div className="size-11 rounded-full bg-green-light text-black flex justify-center items-center font-bold">
+          <PawPrint size={24} strokeWidth={2} />
+        </div>
+        <span
+        className={`text-2xl font-normal tracking-tight `}
+      >
+        Pets
+      </span>
+      </Link>
     </aside>
   );
 }

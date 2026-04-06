@@ -1,4 +1,5 @@
 import Container from "@/components/layout/Container";
+import TopBar from "@/components/layout/TopBar";
 
 export default function addPostLayout({
   children,
@@ -7,6 +8,7 @@ export default function addPostLayout({
 }) {
   return (
     <Container>
+      <TopBar back={false} notifications={false} settings={false} />
       {children}
     </Container>
   );
