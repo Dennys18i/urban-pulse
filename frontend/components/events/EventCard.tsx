@@ -151,6 +151,7 @@ export default function EventCard({
         isMyPost={isMyPost}
         onDelete={() => onDelete && onDelete(event.id)}
         imageUrl={event.imageUrl}
+        eventId={event.id}
       />
       <CardMedia imageUrl={event.imageUrl} />
       <div className={`bg-secondary -mt-4 z-10 rounded-4xl ${event.imageUrl ? "rounded-t-4xl" : "rounded-t-none"} p-5 lg:px-10`}>
