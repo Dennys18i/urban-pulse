@@ -1,6 +1,9 @@
+"use client";
+
 import { MoreVertical, BadgeCheck, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface CardHeaderProps {
   initials: string;
@@ -10,6 +13,7 @@ interface CardHeaderProps {
   isMyPost?: boolean;
   onDelete?: () => void;
   imageUrl: string | null;
+  eventId: number;
 }
 
 export default function CardHeader({
@@ -20,8 +24,10 @@ export default function CardHeader({
   isMyPost,
   onDelete,
   imageUrl,
+  eventId,
 }: CardHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const router = useRouter();
 
   return (
     <div
@@ -39,21 +45,18 @@ export default function CardHeader({
           />
         </div>
         <div className="flex flex-col justify-center items-start">
-          <div className="flex items-center">
-            <p className="w-full font-bold lg:text-lg">Niklaus</p>
+          <div className="flex items-center gap-1">
+            <p className="font-bold lg:text-lg">{name}</p>
             {isVerifiedUser && (
-              <BadgeCheck
-                size={20}
-                className="text-green-light fill-green-light/20"
-              />
+              <BadgeCheck size={20} className="text-green-light fill-green-light/20" />
             )}
           </div>
           <span className="text-white/40 text-xs lg:text-sm">{date}</span>
         </div>
       </div>
+
       {/* menu */}
       <div className="relative flex justify-center items-center">
-        {/* meniul dropdown pentru report */}
         {isMyPost ? (
           <button
             onClick={onDelete}
@@ -70,11 +73,11 @@ export default function CardHeader({
               <MoreVertical size={24} className="text-white" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-full bg-background border border-red-emergency/60 rounded-full overflow-hidden">
+              <div className="absolute right-0 top-full bg-background border border-red-emergency/60 rounded-full overflow-hidden z-50">
                 <button
                   onClick={() => {
-                    console.log("Report action triggered");
                     setShowMenu(false);
+                    router.push(`/report?eventId=${eventId}`);
                   }}
                   className="w-full text-center px-6 py-2 text-red-emergency font-bold text-sm hover:bg-white/5 rounded-full transition-colors cursor-pointer"
                 >
