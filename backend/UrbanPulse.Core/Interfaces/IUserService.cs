@@ -10,5 +10,7 @@ namespace UrbanPulse.Core.Interfaces
         Task DeleteAccountAsync(int userId);
         Task<List<UserProfileDto>> GetUsersWithSkillsAsync();
         Task<List<UserProfileDto>> GetUsersWithToolsAsync();
+        Task<List<UserProfileDto>> GetAllUsersAsync();
+        Task<List<UserProfileDto>> SearchUsersAsync(string query);
     }
 }

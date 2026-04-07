@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UrbanPulse.Core.Entities;
+﻿using UrbanPulse.Core.Entities;
 
 namespace UrbanPulse.Core.Interfaces
 {
@@ -17,5 +12,6 @@ namespace UrbanPulse.Core.Interfaces
         Task<IEnumerable<Event>> GetByUserIdAsync(int userId);
         Task CompleteAsync(int eventId);
         Task DeactivateAsync(int id);
+        Task<List<Event>> SearchAsync(string query);
     }
 }

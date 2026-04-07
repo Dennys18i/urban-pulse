@@ -14,5 +14,6 @@ namespace UrbanPulse.Core.Interfaces
         Task<List<User>> GetUsersWithToolsAsync();
         Task<List<User>> GetUsersMatchingSkillOrToolNearbyAsync(string keyword, double lat, double lng, double radiusKm = 2.0);
         Task<List<User>> GetAllUsersAsync();
+        Task<List<User>> SearchUsersAsync(string query);
     }
 }

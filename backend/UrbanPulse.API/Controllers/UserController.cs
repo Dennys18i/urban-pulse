@@ -20,6 +20,15 @@ public class UserController : ControllerBase
         _eventService = eventService;
     }
 
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var profile = await _userService.GetProfileAsync(userId);
+        if (profile == null) return NotFound();
+        return Ok(profile);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -28,13 +37,23 @@ public class UserController : ControllerBase
         return Ok(profile);
     }
 
-    [HttpGet("profile")]
-    public async Task<IActionResult> GetProfile()
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAll()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var profile = await _userService.GetProfileAsync(userId);
-        if (profile == null) return NotFound();
-        return Ok(profile);
+        var users = await _userService.GetAllUsersAsync();
+        return Ok(users);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            var all = await _userService.GetAllUsersAsync();
+            return Ok(all);
+        }
+        var users = await _userService.SearchUsersAsync(query);
+        return Ok(users);
     }
 
     [HttpGet("with-skills")]
