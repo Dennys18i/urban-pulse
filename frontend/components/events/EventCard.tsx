@@ -11,6 +11,9 @@ import CardActions from "./card/CardActions";
 import CardFooter from "./card/CardFooter";
 import CommentsSheet from "@/components/events/CommentsSheet";
 import { useSignalR } from "@/context/SignalRContext";
+import { useUser } from "@/context/UserContext";
+
+const API = "http://localhost:5248";
 
 interface EventCardProps {
   event: Event;
@@ -50,39 +53,31 @@ export default function EventCard({
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isCompleted, setIsCompleted] = useState(event.isCompleted ?? false);
   const { connection } = useSignalR();
+  const { user } = useUser();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:5248/api/user/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setCurrentUserId(data.id));
-  }, []);
+    if (user) setCurrentUserId(user.id);
+  }, [user]);
 
   useEffect(() => {
     if (event.id === -1) return;
     const token = localStorage.getItem("token");
 
-    fetch(`http://localhost:5248/api/event/${event.id}/like`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API}/api/event/${event.id}/like`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => res.json())
-      .then((data) => {
-        setLikes(data.count);
-        setLiked(data.liked);
-      });
+      .then((data) => { setLikes(data.count); setLiked(data.liked); });
 
-    fetch(`http://localhost:5248/api/event/${event.id}/comment`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API}/api/event/${event.id}/comment`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => res.json())
       .then((data) => setCommentCount(data.length));
+
+    fetch(`${API}/api/event/${event.id}/save`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => res.json())
+      .then((data) => setSaved(data.saved));
   }, [event.id]);
 
   useEffect(() => {
     if (!connection) return;
-
     const handleLikeUpdated = (data: { eventId: number; count: number }) => {
       if (data.eventId === event.id) setLikes(data.count);
     };
@@ -92,11 +87,9 @@ export default function EventCard({
     const handleCommentDeleted = (data: { eventId: number }) => {
       if (data.eventId === event.id) setCommentCount((prev) => prev - 1);
     };
-
     connection.on("LikeUpdated", handleLikeUpdated);
     connection.on("NewComment", handleNewComment);
     connection.on("CommentDeleted", handleCommentDeleted);
-
     return () => {
       connection.off("LikeUpdated", handleLikeUpdated);
       connection.off("NewComment", handleNewComment);
@@ -106,7 +99,7 @@ export default function EventCard({
 
   const handleLike = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5248/api/event/${event.id}/like`, {
+    const res = await fetch(`${API}/api/event/${event.id}/like`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -115,9 +108,21 @@ export default function EventCard({
     setLiked(data.liked);
   };
 
+  const handleSave = async () => {
+    const newSaved = !saved;
+    setSaved(newSaved); // optimistic update
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/api/event/${event.id}/save`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setSaved(data.saved); // sync cu serverul
+  };
+
   const handleMessage = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5248/api/chat/conversations", {
+    const res = await fetch(`${API}/api/chat/conversations`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ otherUserId: event.createdByUserId, eventId: event.id }),
@@ -128,16 +133,14 @@ export default function EventCard({
 
   const handleComplete = async () => {
     const token = localStorage.getItem("token");
-    await fetch(`http://localhost:5248/api/event/${event.id}/complete`, {
+    await fetch(`${API}/api/event/${event.id}/complete`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
     });
     setIsCompleted(true);
   };
 
-  const typeMap: Record<number, EventType> = {
-    0: "General", 1: "Emergency", 2: "Skill", 3: "Lend",
-  };
+  const typeMap: Record<number, EventType> = { 0: "General", 1: "Emergency", 2: "Skill", 3: "Lend" };
   const mappedType = typeof event.type === "number" ? typeMap[event.type] : (event.type as EventType);
   const isOwner = isMyPost || currentUserId === event.createdByUserId;
 
@@ -155,10 +158,7 @@ export default function EventCard({
       />
       <CardMedia imageUrl={event.imageUrl} />
       <div className={`bg-secondary -mt-4 z-10 rounded-4xl ${event.imageUrl ? "rounded-t-4xl" : "rounded-t-none"} p-5 lg:px-10`}>
-        <CardContent
-          description={event.description}
-          isVerified={mappedType === "Emergency"}
-        />
+        <CardContent description={event.description} isVerified={mappedType === "Emergency"} />
         <CardActions
           type={mappedType}
           isMyPost={isOwner}
@@ -171,7 +171,7 @@ export default function EventCard({
           liked={liked}
           onLike={handleLike}
           saved={saved}
-          onSave={() => setSaved(!saved)}
+          onSave={handleSave}
           type={mappedType}
           comments={commentCount}
           onComment={() => setShowComments(true)}
@@ -180,9 +180,7 @@ export default function EventCard({
           isMyPost={isOwner}
         />
       </div>
-
-      {showComments &&
-        typeof window !== "undefined" &&
+      {showComments && typeof window !== "undefined" &&
         createPortal(
           <CommentsSheet eventId={event.id} onClose={() => setShowComments(false)} />,
           document.body,
