@@ -9,7 +9,9 @@ export interface Event {
   tags: string[];
   imageUrl: string | null;
   createdByEmail: string;
+  createdByFullName?: string;
   createdByUserId: number;
+  isVerifiedUser?: boolean;
   createdAt: string;
   isActive: boolean;
   isCompleted?: boolean;

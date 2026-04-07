@@ -16,9 +16,7 @@ interface EventCardProps {
   event: Event;
   isMyPost?: boolean;
   onDelete?: (id: number) => void;
-  /** Admin: număr de flag-uri (activează modul admin pe footer) */
   flagCount?: number;
-  /** Admin: callback la click pe "View insights" */
   onViewInsights?: (eventId: number) => void;
 }
 
@@ -33,7 +31,6 @@ function formatDate(dateStr: string) {
   const year = date.getFullYear();
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-
   return `${day}.${month}.${year} \u00A0 ${hours}:${minutes}`;
 }
 
@@ -87,21 +84,13 @@ export default function EventCard({
     if (!connection) return;
 
     const handleLikeUpdated = (data: { eventId: number; count: number }) => {
-      if (data.eventId === event.id) {
-        setLikes(data.count);
-      }
+      if (data.eventId === event.id) setLikes(data.count);
     };
-
     const handleNewComment = (data: { eventId: number }) => {
-      if (data.eventId === event.id) {
-        setCommentCount((prev) => prev + 1);
-      }
+      if (data.eventId === event.id) setCommentCount((prev) => prev + 1);
     };
-
     const handleCommentDeleted = (data: { eventId: number }) => {
-      if (data.eventId === event.id) {
-        setCommentCount((prev) => prev - 1);
-      }
+      if (data.eventId === event.id) setCommentCount((prev) => prev - 1);
     };
 
     connection.on("LikeUpdated", handleLikeUpdated);
@@ -117,13 +106,10 @@ export default function EventCard({
 
   const handleLike = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(
-      `http://localhost:5248/api/event/${event.id}/like`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+    const res = await fetch(`http://localhost:5248/api/event/${event.id}/like`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const data = await res.json();
     setLikes(data.count);
     setLiked(data.liked);
@@ -133,14 +119,8 @@ export default function EventCard({
     const token = localStorage.getItem("token");
     const res = await fetch("http://localhost:5248/api/chat/conversations", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        otherUserId: event.createdByUserId,
-        eventId: event.id,
-      }),
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ otherUserId: event.createdByUserId, eventId: event.id }),
     });
     const data = await res.json();
     router.push(`/chat-conversation/${data.conversationId}`);
@@ -156,39 +136,29 @@ export default function EventCard({
   };
 
   const typeMap: Record<number, EventType> = {
-    0: "General",
-    1: "Emergency",
-    2: "Skill",
-    3: "Lend",
+    0: "General", 1: "Emergency", 2: "Skill", 3: "Lend",
   };
-  const mappedType =
-    typeof event.type === "number"
-      ? typeMap[event.type]
-      : (event.type as EventType);
-
+  const mappedType = typeof event.type === "number" ? typeMap[event.type] : (event.type as EventType);
   const isOwner = isMyPost || currentUserId === event.createdByUserId;
 
   return (
     <div className="w-full relative mb-4">
       <CardHeader
         initials={getInitials(event.createdByEmail)}
-        name={event.createdByEmail?.split("@")[0] ?? "Unknown"}
+        name={event.createdByFullName ?? event.createdByEmail?.split("@")[0] ?? "Unknown"}
         date={formatDate(event.createdAt)}
-        isVerifiedUser={true}
+        isVerifiedUser={event.isVerifiedUser ?? false}
         isMyPost={isMyPost}
         onDelete={() => onDelete && onDelete(event.id)}
         imageUrl={event.imageUrl}
         eventId={event.id}
       />
       <CardMedia imageUrl={event.imageUrl} />
-      <div
-        className={`bg-secondary -mt-4 z-10 rounded-4xl ${event.imageUrl ? "rounded-t-4xl" : "rounded-t-none"} p-5 lg:px-10`}
-      >
+      <div className={`bg-secondary -mt-4 z-10 rounded-4xl ${event.imageUrl ? "rounded-t-4xl" : "rounded-t-none"} p-5 lg:px-10`}>
         <CardContent
           description={event.description}
           isVerified={mappedType === "Emergency"}
         />
-
         <CardActions
           type={mappedType}
           isMyPost={isOwner}
@@ -196,7 +166,6 @@ export default function EventCard({
           isCompleted={isCompleted}
           onComplete={handleComplete}
         />
-
         <CardFooter
           likes={likes}
           liked={liked}
@@ -207,9 +176,7 @@ export default function EventCard({
           comments={commentCount}
           onComment={() => setShowComments(true)}
           flagCount={flagCount}
-          onViewInsights={
-            onViewInsights ? () => onViewInsights(event.id) : undefined
-          }
+          onViewInsights={onViewInsights ? () => onViewInsights(event.id) : undefined}
           isMyPost={isOwner}
         />
       </div>
@@ -217,10 +184,7 @@ export default function EventCard({
       {showComments &&
         typeof window !== "undefined" &&
         createPortal(
-          <CommentsSheet
-            eventId={event.id}
-            onClose={() => setShowComments(false)}
-          />,
+          <CommentsSheet eventId={event.id} onClose={() => setShowComments(false)} />,
           document.body,
         )}
     </div>

@@ -2,54 +2,65 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Flag } from "lucide-react";
-import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import Image from "next/image";
 import GoBackButton from "@/components/ui/GoBackButton";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
+
+const API = "http://localhost:5248";
 
 function ReportForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const eventId = searchParams.get("eventId");
 
-  const [reason, setReason] = useState("");
-  const [description, setDescription] = useState("");
+  const [details, setDetails] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleReport = async () => {
-    if (!reason.trim()) return;
+    if (!details.trim() || !eventId) return;
     setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5248/api/event/${eventId}/report`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reason, description }),
-      });
-      router.back();
-    } catch {
+    setError("");
+
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/api/report`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ eventId: parseInt(eventId), details }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.message ?? "Something went wrong.");
       setLoading(false);
+      return;
     }
+
+    setSubmitted(true);
+    setLoading(false);
+    setTimeout(() => router.back(), 1500);
   };
 
   return (
     <div className="w-full flex flex-col items-center gap-6 animate-fade-up pb-10">
-      {/* Header */}
+      {/* Mobile header */}
       <div className="flex w-full items-center relative lg:hidden">
         <GoBackButton />
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <h1 className="text-white font-bold text-xl font-montagu">Report</h1>
         </div>
       </div>
+
       {/* Illustration */}
       <div className="flex items-center justify-center w-58 h-56">
         <Image
-          src="report-image.png"
-          width="232"
-          height="224"
+          src="/report-image.png"
+          width={232}
+          height={224}
           alt="Report Image"
           className="w-full h-full object-cover"
         />
@@ -60,32 +71,46 @@ function ReportForm() {
         What is wrong with this content?
       </p>
 
-      {/* Inputs */}
-      <div className="w-full flex flex-col gap-3 px-1">
-        <input
-          type="text"
-          placeholder="Reason:"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className="w-full h-13 rounded-full overflow-hidden bg-input border border-red-emergency px-5 text-white placeholder-white/50 outline-none"
-        />
-        <textarea
-          placeholder="Describe..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={5}
-          className="w-full rounded-3xl bg-secondary px-5 py-4 text-white placeholder-white/40 outline-none resize-none"
-        />
-      </div>
+      {submitted ? (
+        <div className="flex flex-col items-center gap-4 text-center mt-4">
+          <span className="text-4xl">✅</span>
+          <p className="text-white font-semibold">Report submitted!</p>
+          <p className="text-white/40 text-sm">
+            Thank you for keeping the community safe.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Textarea */}
+          <div className="w-full flex flex-col gap-2 px-1">
+            <textarea
+              placeholder="Describe the issue..."
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              rows={5}
+              className="w-full rounded-3xl bg-secondary px-5 py-4 text-white placeholder-white/40 outline-none resize-none"
+            />
+            <span className="text-white/20 text-xs text-right">
+              {details.length}/500
+            </span>
+          </div>
 
-      {/* Button */}
-      <button
-        onClick={handleReport}
-        disabled={!reason.trim() || loading}
-        className="w-50 h-13 rounded-2xl bg-red-emergency text-white font-bold text-lg transition-transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-emergency/90"
-      >
-        {loading ? "Reporting..." : "Report"}
-      </button>
+          {error && (
+            <div className="w-full py-3 px-4 bg-red-emergency/10 border border-red-emergency/30 rounded-2xl">
+              <p className="text-red-emergency text-sm text-center">{error}</p>
+            </div>
+          )}
+
+          {/* Button */}
+          <button
+            onClick={handleReport}
+            disabled={!details.trim() || loading}
+            className="w-50 h-13 rounded-2xl bg-red-emergency text-white font-bold text-lg transition-transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-emergency/90"
+          >
+            {loading ? "Reporting..." : "Report"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
