@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
+import { BadgeCheck, User } from "lucide-react";
 
 interface UserProfile {
   email: string;
@@ -30,15 +31,33 @@ export default function ProfilePage() {
   /* ── Mobile profile content (reused as center column on desktop) ── */
   const profileContent = (
     <div className="w-full flex flex-col gap-12 mt-7">
-      <section className="w-full flex justify-around items-center">
-        <div className="size-35 rounded-full overflow-hidden">
-          <Image
-            src="/profile.png"
-            alt={displayName}
-            width={140}
-            height={140}
-            className="object-cover w-full h-full"
-          />
+      <section className="w-full flex justify-around items-center -mb-7">
+        <div className="flex flex-col justify-center items-center">
+          <div className="size-35 rounded-full overflow-hidden">
+            <Image
+              src="/profile.png"
+              alt={displayName}
+              width={140}
+              height={140}
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <div className="">
+            <div className="flex items-center gap-1.5 mt-5">
+              <BadgeCheck
+                size={22}
+                className="text-green-light fill-green-light/20"
+              />{" "}
+              <span className="font-bold">Verified Neighbour</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-2">
+              <User
+                size={22}
+                className="fill-white"
+              />{" "}
+              <span className="font-bold">Member since: <span className="text-green-light font-normal">20 June 2024</span></span>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -139,9 +158,5 @@ export default function ProfilePage() {
     </div>
   );
 
-  return (
-    <ThreeColumnLayout>
-      {profileContent}
-    </ThreeColumnLayout>
-  );
+  return <ThreeColumnLayout>{profileContent}</ThreeColumnLayout>;
 }
