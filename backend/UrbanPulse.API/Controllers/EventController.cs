@@ -176,6 +176,18 @@ namespace UrbanPulse.API.Controllers
             return Ok(events);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                var all = await _eventService.GetAllActiveAsync();
+                return Ok(all);
+            }
+            var events = await _eventService.SearchAsync(query);
+            return Ok(events);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Deactivate(int id)
         {

@@ -10,6 +10,7 @@ export interface Event {
   imageUrl: string | null;
   createdByEmail: string;
   createdByFullName?: string;
+  createdByAvatarUrl?: string;
   createdByUserId: number;
   isVerifiedUser?: boolean;
   createdAt: string;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montagu_Slab, Inter } from "next/font/google";
 import { SignalRProvider } from "@/context/SignalRContext";
+import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
 
 const montagu = Montagu_Slab({
@@ -33,7 +34,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-inter antialiased">
-        <SignalRProvider>{children}</SignalRProvider>
+        <SignalRProvider>
+          <UserProvider>
+            {children}
+          </UserProvider>
+        </SignalRProvider>
       </body>
     </html>
   );
