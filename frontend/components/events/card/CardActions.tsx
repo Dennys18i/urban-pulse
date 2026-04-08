@@ -8,7 +8,13 @@ interface CardActionsProps {
   onComplete?: () => void;
 }
 
-export default function CardActions({ type, isMyPost, onMessage, isCompleted, onComplete }: CardActionsProps) {
+export default function CardActions({
+  type,
+  isMyPost,
+  onMessage,
+  isCompleted,
+  onComplete,
+}: CardActionsProps) {
   if (type === "Emergency") {
     return (
       <div className="flex flex-col gap-3 pb-3 max-w-100 mx-auto mt-4">
@@ -48,13 +54,15 @@ export default function CardActions({ type, isMyPost, onMessage, isCompleted, on
     return (
       <div className="mt-4 mb-4 mx-auto flex justify-center w-full">
         {isCompleted ? (
-          <div className="flex items-center gap-2 px-4 py-2 bg-green-400/10 border border-green-400/30 rounded-full">
-            <span className="text-green-400 text-xs font-bold">✓ Completed</span>
+          <div>
+            <span className="bg-green-light text-black px-3 py-1 rounded-full text-xs font-semibold w-fit mt-1">
+              ✓ Completed
+            </span>
           </div>
         ) : (
           <button
             onClick={onComplete}
-            className="w-full h-8 bg-green-light text-black rounded-[10px] font-bold transition-transform active:scale-95 cursor-pointer"
+            className="px-8 h-8 bg-green-light text-black rounded-[10px] font-bold transition-transform active:scale-95 cursor-pointer"
           >
             Mark as Completed
           </button>

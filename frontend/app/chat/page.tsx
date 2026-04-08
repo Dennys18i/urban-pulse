@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+const API = "http://localhost:5248";
 
 interface Conversation {
   id: number;
   otherUserId: number;
   otherUserEmail: string;
   otherUserFullName: string | null;
+  otherUserAvatarUrl: string | null;
   lastMessage: string | null;
   lastMessageAt: string | null;
   unreadCount: number;
@@ -24,9 +28,7 @@ function formatTime(dateStr: string | null) {
   const date = new Date(dateStr);
   const now = new Date();
   const isToday = date.toDateString() === now.toDateString();
-  if (isToday) {
-    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-  }
+  if (isToday) return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
@@ -37,9 +39,7 @@ export default function ChatsPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:5248/api/chat/conversations", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${API}/api/chat/conversations`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => res.json())
       .then((data) => setConversations(data))
       .finally(() => setLoading(false));
@@ -49,27 +49,22 @@ export default function ChatsPage() {
     <div className="w-full flex flex-col gap-4 pb-[8vh]">
       <h1 className="text-white font-bold text-2xl">Messages</h1>
 
-      {loading && (
-        <p className="text-white/40 text-sm text-center mt-10">Loading...</p>
-      )}
-
-      {!loading && conversations.length === 0 && (
-        <p className="text-white/40 text-sm text-center mt-10">
-          No conversations yet.
-        </p>
-      )}
+      {loading && <p className="text-white/40 text-sm text-center mt-10">Loading...</p>}
+      {!loading && conversations.length === 0 && <p className="text-white/40 text-sm text-center mt-10">No conversations yet.</p>}
 
       <div className="flex flex-col gap-3">
         {conversations.map((conv) => (
-          <button
-            key={conv.id}
-            onClick={() => router.push(`/chat-conversation/${conv.id}`)}
+          <button key={conv.id} onClick={() => router.push(`/chat-conversation/${conv.id}`)}
             className="w-full bg-secondary rounded-2xl px-4 py-3 flex items-center gap-3 text-left"
           >
-            <div className="w-12 h-12 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-semibold text-white/60">
-                {getInitials(conv.otherUserFullName, conv.otherUserEmail)}
-              </span>
+            <div className="w-12 h-12 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {conv.otherUserAvatarUrl ? (
+                <Image src={conv.otherUserAvatarUrl} width={48} height={48} alt={conv.otherUserFullName ?? ""} className="object-cover w-full h-full" />
+              ) : (
+                <span className="text-sm font-semibold text-white/60">
+                  {getInitials(conv.otherUserFullName, conv.otherUserEmail)}
+                </span>
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -77,13 +72,9 @@ export default function ChatsPage() {
                 <span className="text-white font-semibold text-sm">
                   {conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]}
                 </span>
-                <span className="text-white/30 text-xs">
-                  {formatTime(conv.lastMessageAt)}
-                </span>
+                <span className="text-white/30 text-xs">{formatTime(conv.lastMessageAt)}</span>
               </div>
-              <p className="text-white/40 text-xs mt-0.5 truncate">
-                {conv.lastMessage ?? "No messages yet"}
-              </p>
+              <p className="text-white/40 text-xs mt-0.5 truncate">{conv.lastMessage ?? "No messages yet"}</p>
             </div>
 
             {conv.unreadCount > 0 && (

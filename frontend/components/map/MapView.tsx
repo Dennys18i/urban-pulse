@@ -22,6 +22,7 @@ interface UserProfile {
   skills: string[];
   tools: string[];
   trustScore: number;
+  avatarUrl?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
@@ -54,6 +55,7 @@ interface EventMarker {
   type: "skill" | "lend" | "emergency";
 }
 
+
 function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void }) {
   const router = useRouter();
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
@@ -79,13 +81,18 @@ function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void
 
   const isOwn = currentUserId === user.id;
   const name = user.fullName ?? user.email?.split("@")[0] ?? "User";
+  const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <div className="pc-overlay" onClick={onClose}>
       <div className="pc-card" onClick={(e) => e.stopPropagation()}>
         <div className="pc-header">
-          <div className="pc-avatar">
-            <Image src="/profile.png" alt={name} width={64} height={64} className="object-cover w-full h-full" />
+          <div className="pc-avatar overflow-hidden bg-[#2e2e2e] flex items-center justify-center">
+            {user.avatarUrl ? (
+              <Image src={user.avatarUrl} alt={name} width={64} height={64} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-white font-bold text-xl">{initials}</span>
+            )}
           </div>
           <div className="flex flex-col gap-2 flex-1">
             <h2 className="pc-name">{name}</h2>
@@ -133,7 +140,7 @@ function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void
 
 function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }) {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [authorTrustScore, setAuthorTrustScore] = useState<number>(0);
+  const [authorProfile, setAuthorProfile] = useState<{ trustScore: number; avatarUrl?: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -144,7 +151,7 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
       .then((d) => setCurrentUserId(d.id));
     fetch(`${API}/api/user/${event.createdByUserId}`, { headers: h })
       .then((r) => { if (r.ok) return r.json(); return null; })
-      .then((d) => { if (d) setAuthorTrustScore(d.trustScore ?? 0); })
+      .then((d) => { if (d) setAuthorProfile({ trustScore: d.trustScore ?? 0, avatarUrl: d.avatarUrl }); })
       .catch(() => {});
   }, [event.createdByUserId]);
 
@@ -164,11 +171,12 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
   const typeStr = typeof event.type === "number" ? typeNumMap[event.type] : event.type;
   const typeMap: Record<string, { label: string; color: string; bg: string }> = {
     Emergency: { label: "Emergency", color: "#EF4444", bg: "rgba(239,68,68,0.15)" },
-    Skill:     { label: "Skill",      color: "#FFD700", bg: "rgba(255,215,0,0.15)" },
-    Lend:      { label: "Lend",       color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
+    Skill:     { label: "Skill",     color: "#FFD700", bg: "rgba(255,215,0,0.15)" },
+    Lend:      { label: "Lend",      color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
   };
   const t = typeMap[typeStr ?? "Skill"] ?? typeMap["Skill"];
   const name = event.createdByFullName || event.createdByEmail?.split("@")[0] || "Unknown";
+  const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
   const isOwn = currentUserId !== null && currentUserId === event.createdByUserId;
   const tagsArray: string[] = Array.isArray(event.tags)
     ? event.tags
@@ -180,8 +188,12 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
     <div className="pc-overlay" onClick={onClose}>
       <div className="pc-card" onClick={(e) => e.stopPropagation()}>
         <div className="pc-header">
-          <div className="pc-avatar">
-            <Image src="/profile.png" width={64} height={64} alt="profile" className="object-cover w-full h-full" />
+          <div className="pc-avatar overflow-hidden bg-[#2e2e2e] flex items-center justify-center">
+            {authorProfile?.avatarUrl ? (
+              <Image src={authorProfile.avatarUrl} alt={name} width={64} height={64} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-white font-bold text-xl">{initials}</span>
+            )}
           </div>
           <div className="flex flex-col gap-2 flex-1">
             <h2 className="pc-name">{name}</h2>
@@ -189,7 +201,7 @@ function EventCard({ event, onClose }: { event: EventItem; onClose: () => void }
               <div className="pc-trust">
                 <span className="pc-trust-label">Trust<br />score</span>
                 <div className="pc-trust-divider" />
-                <span className="pc-trust-value">{Math.round(authorTrustScore)}%</span>
+                <span className="pc-trust-value">{Math.round(authorProfile?.trustScore ?? 0)}%</span>
               </div>
               {isOwn ? (
                 <span className="ec-your-post">Your post</span>

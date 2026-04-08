@@ -54,7 +54,6 @@ namespace UrbanPulse.Infrastructure.Repositories
         public async Task<List<User>> GetUsersMatchingSkillOrToolNearbyAsync(
             string keyword, double lat, double lng, double radiusKm = 2.0)
         {
-            
             var candidates = await _context.Users
                 .Where(u =>
                     u.Latitude != null && u.Longitude != null &&
@@ -69,6 +68,13 @@ namespace UrbanPulse.Infrastructure.Repositories
 
         public async Task<List<User>> GetAllUsersAsync() =>
             await _context.Users.ToListAsync();
+
+        public async Task<List<User>> SearchUsersAsync(string query) =>
+            await _context.Users
+                .Where(u =>
+                    (u.FullName != null && u.FullName.ToLower().Contains(query.ToLower())) ||
+                    u.Email.ToLower().Contains(query.ToLower()))
+                .ToListAsync();
 
         private static double GetDistanceKm(double lat1, double lng1, double lat2, double lng2)
         {

@@ -14,6 +14,8 @@ namespace UrbanPulse.Core.DTOs.Events
         public int CreatedByUserId { get; set; }
         public string CreatedByEmail { get; set; } = string.Empty;
         public string? CreatedByFullName { get; set; }
+        public string? CreatedByAvatarUrl { get; set; }
+        public bool IsVerifiedUser { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }
         public bool IsCompleted { get; set; }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UrbanPulse.Core.Entities;
 using UrbanPulse.Core.Interfaces;
 using UrbanPulse.Infrastructure.Data;
@@ -41,7 +36,6 @@ namespace UrbanPulse.Infrastructure.Repositories
         public async Task<List<Event>> GetByRadiusAsync(double latitude, double longitude, double radiusKm)
         {
             const double EarthRadiusKm = 6371;
-
             var events = await _db.Events
                 .Include(e => e.CreatedByUser)
                 .Where(e => e.IsActive)
@@ -55,8 +49,7 @@ namespace UrbanPulse.Infrastructure.Repositories
                         Math.Cos(ToRad(latitude)) * Math.Cos(ToRad(e.Latitude)) *
                         Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
                 var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-                var distance = EarthRadiusKm * c;
-                return distance <= radiusKm;
+                return EarthRadiusKm * c <= radiusKm;
             }).ToList();
         }
 
@@ -74,14 +67,22 @@ namespace UrbanPulse.Infrastructure.Repositories
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
 
+        public async Task<List<Event>> SearchAsync(string query)
+            => await _db.Events
+                .Include(e => e.CreatedByUser)
+                .Where(e => e.IsActive && (
+                    e.Description.ToLower().Contains(query.ToLower()) ||
+                    e.Tags.ToLower().Contains(query.ToLower()) ||
+                    (e.CreatedByUser != null && e.CreatedByUser.FullName != null &&
+                     e.CreatedByUser.FullName.ToLower().Contains(query.ToLower()))
+                ))
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+
         public async Task DeactivateAsync(int id)
         {
             var ev = await _db.Events.FindAsync(id);
-            if (ev != null)
-            {
-                ev.IsActive = false;
-                await _db.SaveChangesAsync();
-            }
+            if (ev != null) { ev.IsActive = false; await _db.SaveChangesAsync(); }
         }
 
         public async Task CompleteAsync(int eventId)
@@ -94,6 +95,5 @@ namespace UrbanPulse.Infrastructure.Repositories
         }
 
         private static double ToRad(double deg) => deg * Math.PI / 180;
-
     }
 }

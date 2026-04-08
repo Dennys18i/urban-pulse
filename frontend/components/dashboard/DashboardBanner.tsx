@@ -82,16 +82,16 @@ export default function DashboardBanner({
         priority
         className="absolute object-cover z-0 top-0 w-full h-full rounded-3xl"
       />
-      <div className="flex-1 z-2 bg-weather-nice rounded-2xl flex flex-col justify-center p-2 px-4 min-h-20 sm:text-center">
+      <div className="flex-1 z-2 bg-weather-nice rounded-2xl flex flex-col justify-center p-2 px-4 min-h-20 text-center">
         <p className="w-full font-bold text-lg">Event</p>
         <p className="w-full font-light">Game Night</p>
       </div>
       <div
-        className={`flex-1 z-2 rounded-2xl flex justify-between sm:justify-center items-center p-2 px-4 min-h-20 transition-all relative ${
+        className={`flex-1 z-2 rounded-2xl flex justify-center items-center p-2 px-4 min-h-20 transition-all relative ${
           weather?.isSevere ? "bg-red-emergency" : "bg-weather-nice"
         }`}
       >
-        <div className="flex flex-col sm:mr-18">
+        <div className="flex flex-col mr-18">
           <p className="w-full font-bold text-xl">
             {weather ? `${weather.temp}° C` : "--° C"}
           </p>
@@ -99,7 +99,7 @@ export default function DashboardBanner({
             {weather ? weather.description : "Loading..."}
           </p>
         </div>
-        <div className="absolute w-15 h-15 -right-2 sm:right-15 sm:w-20 sm:h-20">
+        <div className="absolute w-15 h-15 right-[5vw] sm:right-15 sm:w-20 sm:h-20">
           <img
             src={
               weather

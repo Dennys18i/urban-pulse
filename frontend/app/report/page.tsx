@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import GoBackButton from "@/components/ui/GoBackButton";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
 const API = "http://localhost:5248";
 
-export default function ReportPage() {
+function ReportForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const eventId = searchParams.get("eventId");
@@ -44,52 +46,87 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col bg-background px-6 pt-6 pb-10">
-      <div className="flex items-center justify-between mb-10">
+    <div className="w-full flex flex-col items-center gap-6 animate-fade-up pb-10">
+      {/* Mobile header */}
+      <div className="flex w-full items-center relative lg:hidden">
         <GoBackButton />
-        <h1 className="text-lg font-bold font-montagu text-white">Report</h1>
-        <div className="w-10" />
+        <div className="absolute inset-0 flex items-center justify-center gap-2">
+          <h1 className="text-white font-bold text-xl font-montagu">Report</h1>
+        </div>
       </div>
 
+      {/* Illustration */}
+      <div className="flex items-center justify-center w-58 h-56">
+        <Image
+          src="/report-image.png"
+          width={232}
+          height={224}
+          alt="Report Image"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Question */}
+      <p className="text-white font-medium text-xl text-center px-4 pt-4">
+        What is wrong with this content?
+      </p>
+
       {submitted ? (
-        <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center">
-          <span className="text-4xl"></span>
+        <div className="flex flex-col items-center gap-4 text-center mt-4">
+          <span className="text-4xl">✅</span>
           <p className="text-white font-semibold">Report submitted!</p>
-          <p className="text-white/40 text-sm">Thank you for keeping the community safe.</p>
+          <p className="text-white/40 text-sm">
+            Thank you for keeping the community safe.
+          </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6 flex-1">
-          <div className="flex flex-col gap-2">
-            <p className="text-white/60 text-sm">
-              Please describe why you're reporting this post. Your report will be reviewed by our team
-            </p>
-          </div>
-          <div className="flex flex-col gap-2">
+        <>
+          {/* Textarea */}
+          <div className="w-full max-w-130 flex flex-col gap-2 px-1">
             <textarea
+              placeholder="Describe the issue..."
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="Add details about the issue..."
-              rows={6}
-              className="w-full bg-[#1C1C1C] border border-white/10 rounded-2xl p-4 text-white text-sm placeholder:text-white/30 outline-none resize-none focus:border-red-500/50 transition-colors"
+              rows={5}
+              className="w-full rounded-3xl bg-secondary px-5 py-4 lg:px-6 lg:py-5 text-white placeholder-white/40 outline-none resize-none"
             />
-            <span className="text-white/20 text-xs text-right">{details.length}/500</span>
+            <span className="text-white/20 text-xs text-right">
+              {details.length}/500
+            </span>
           </div>
 
           {error && (
-            <div className="py-3 px-4 bg-red-500/10 border border-red-500/30 rounded-2xl">
-              <p className="text-red-400 text-sm text-center">{error}</p>
+            <div className="w-full py-3 px-4 bg-red-emergency/10 border border-red-emergency/30 rounded-2xl">
+              <p className="text-red-emergency text-sm text-center">{error}</p>
             </div>
           )}
 
+          {/* Button */}
           <button
             onClick={handleReport}
             disabled={!details.trim() || loading}
-            className="w-full py-4 rounded-2xl bg-red-500/90 text-white font-bold text-sm hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-auto"
+            className="w-50 h-13 rounded-2xl bg-red-emergency text-white font-bold text-lg transition-transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-emergency/90"
           >
-            {loading ? "Submitting..." : "Report Post"}
+            {loading ? "Reporting..." : "Report"}
           </button>
-        </div>
+        </>
       )}
     </div>
+  );
+}
+
+export default function ReportPage() {
+  return (
+    <ThreeColumnLayout>
+      <Suspense
+        fallback={
+          <div className="text-white/40 text-sm text-center mt-20">
+            Loading...
+          </div>
+        }
+      >
+        <ReportForm />
+      </Suspense>
+    </ThreeColumnLayout>
   );
 }

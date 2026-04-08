@@ -14,6 +14,7 @@
         public double TrustScore { get; set; } = 0;
         public string? Skills { get; set; }
         public string? Tools { get; set; }
+        public string? AvatarUrl { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
     }
