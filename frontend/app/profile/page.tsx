@@ -119,6 +119,16 @@ export default function ProfilePage() {
             />
           </div>
 
+          {isRealAdmin && viewAsUser && (
+            <button
+              onClick={handleAdminMode}
+              className="flex items-center gap-2 bg-secondary rounded-full px-5 py-2.5 transition-transform active:scale-95 cursor-pointer hover:bg-secondary/90 mt-4"
+            >
+              <ArrowLeftRight size={20} className="text-white" />
+              <span className="text-white text-sm font-medium">Admin mode</span>
+            </button>
+          )}
+
           <div>
             {profile?.isVerified && (
               <div className="flex items-center gap-1.5 mt-5">
@@ -156,15 +166,6 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          {isRealAdmin && viewAsUser && (
-            <button
-              onClick={handleAdminMode}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-white/20 text-white font-medium text-sm hover:bg-secondary/70 transition-colors cursor-pointer"
-            >
-              <ArrowLeftRight size={16} strokeWidth={2.5} />
-              Admin mode
-            </button>
-          )}
         </div>
       </section>
 
