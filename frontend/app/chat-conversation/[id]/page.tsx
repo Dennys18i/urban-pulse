@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { Plus, MoreVertical, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import { useSignalR } from "@/context/SignalRContext";
 
@@ -17,10 +17,6 @@ interface Message {
   messageType?: string;
 }
 
-function formatTime(dateStr: string) {
-  const date = new Date(dateStr);
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-}
 
 export default function ChatPage() {
   const { id } = useParams();
@@ -29,6 +25,8 @@ export default function ChatPage() {
   const [text, setText] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [otherUserName, setOtherUserName] = useState("");
+  const [otherUserAvatar, setOtherUserAvatar] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
   const [ratedMessages, setRatedMessages] = useState<Set<number>>(new Set());
   const [helpedMessages, setHelpedMessages] = useState<Set<number>>(new Set());
   const [hasRated, setHasRated] = useState(false);
@@ -52,6 +50,14 @@ export default function ChatPage() {
         const conv = data.find((c: any) => c.id === Number(id));
         if (conv) {
           setOtherUserName(conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]);
+          fetch(`http://localhost:5248/api/user/${conv.otherUserId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((res) => res.json())
+            .then((profile) => {
+              setOtherUserAvatar(profile.avatarUrl ?? null);
+              setIsVerified(profile.isVerified ?? false);
+            });
         }
       });
 
@@ -127,12 +133,24 @@ export default function ChatPage() {
         <button onClick={() => router.back()}>
           <Image src="/undo.svg" alt="back" width={40} height={30} />
         </button>
-        <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center">
-          <span className="text-xs font-semibold text-white/60">
-            {otherUserName?.slice(0, 2).toUpperCase()}
-          </span>
+        <div className="w-10 h-10 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+          {otherUserAvatar ? (
+            <Image src={otherUserAvatar} width={40} height={40} alt={otherUserName} className="object-cover w-full h-full" />
+          ) : (
+            <span className="text-xs font-semibold text-white/60">
+              {otherUserName?.slice(0, 2).toUpperCase()}
+            </span>
+          )}
         </div>
-        <span className="text-white font-bold">{otherUserName}</span>
+        <span className="text-white font-bold flex-1 flex items-center gap-1.5">
+          {otherUserName}
+          {isVerified && (
+            <BadgeCheck size={18} className="text-green-light fill-green-light/20 shrink-0" />
+          )}
+        </span>
+        <button className="p-1">
+          <MoreVertical size={20} className="text-white/60" />
+        </button>
       </div>
 
       {/* Messages */}
@@ -217,16 +235,13 @@ export default function ChatPage() {
               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                className={`max-w-[75%] px-4 py-2.5 rounded-3xl text-sm ${
                   isMe
-                    ? "bg-green-400 text-black rounded-br-sm"
-                    : "bg-[#BEDCF5] text-[#003A69] rounded-bl-sm"
+                    ? "bg-[#B8D4F0] text-[#003A69]"
+                    : "bg-[#2A2A2A] text-white"
                 }`}
               >
                 <p>{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${isMe ? "text-black/50 text-right" : "text-[#003A69]/50"}`}>
-                  {formatTime(msg.createdAt)}
-                </p>
               </div>
             </div>
           );
@@ -236,6 +251,9 @@ export default function ChatPage() {
 
       {/* Input */}
       <div className="px-4 py-4 border-t border-white/10 flex gap-3 items-center bg-background">
+        <button className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+          <Plus size={28} className="text-white" />
+        </button>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -246,9 +264,11 @@ export default function ChatPage() {
         <button
           onClick={handleSend}
           disabled={!text.trim()}
-          className="w-10 h-10 bg-green-400 rounded-full flex items-center justify-center disabled:opacity-40"
+          className="w-10 h-10 bg-[#B8D4F0] rounded-full flex items-center justify-center disabled:opacity-40"
         >
-          <Send size={16} className="text-black" />
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-[#003A69]">
+            <path d="M2 12l19-9-9 19-2-8-8-2z" />
+          </svg>
         </button>
       </div>
     </div>
