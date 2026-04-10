@@ -13,7 +13,6 @@ import UrbanTitle from "@/components/ui/UrbanTitle";
 const API = "http://localhost:5248";
 
 interface AdminStats {
-  totalTasks: number;
   resolvedTasks: number;
   dailyNewUsers: number;
   dailyPosts: number;
@@ -23,10 +22,10 @@ interface AdminStats {
   totalUsers: number;
   verifiedUsers: number;
   unverifiedUsers: number;
+  flaggedUsersCount: number;
+  flaggedContentCount: number;
+  mergeDuplicatesCount: number;
 }
-
-const MOCK_FLAGGED_USERS_PERCENT = 35;
-const MOCK_FLAGGED_CONTENT_PERCENT = 45;
 
 export default function AdminDashboard() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -42,16 +41,19 @@ export default function AdminDashboard() {
       .catch(() => {});
   }, []);
 
-  const totalTasks = stats?.totalTasks ?? 0;
-  const resolvedTasks = stats?.resolvedTasks ?? 0;
-  const resolvedPercent = totalTasks > 0
-    ? Math.round((resolvedTasks / totalTasks) * 100)
-    : 0;
+  const flaggedUsers = stats?.flaggedUsersCount ?? 0;
+  const flaggedContent = stats?.flaggedContentCount ?? 0;
+  const mergeDuplicates = stats?.mergeDuplicatesCount ?? 0;
+  const total = flaggedUsers + flaggedContent + mergeDuplicates;
+
+  const flaggedUsersPercent = total > 0 ? Math.round((flaggedUsers / total) * 100) : 0;
+  const flaggedContentPercent = total > 0 ? Math.round((flaggedContent / total) * 100) : 0;
+  const mergeDuplicatesPercent = total > 0 ? 100 - flaggedUsersPercent - flaggedContentPercent : 0;
 
   const donutSegments = [
-    { value: MOCK_FLAGGED_USERS_PERCENT, color: "#FFF081" },
-    { value: MOCK_FLAGGED_CONTENT_PERCENT, color: "#A53A3A" },
-    { value: resolvedPercent, color: "#4ADE80" },
+    { value: flaggedUsersPercent, color: "#A53A3A" },      
+    { value: flaggedContentPercent, color: "#5B8DEF" },    
+    { value: mergeDuplicatesPercent, color: "#FFF081" },    
   ];
 
   const handleSaveEvent = (eventText: string) => {
@@ -90,7 +92,7 @@ export default function AdminDashboard() {
         <div className="flex justify-center py-2">
           <DonutChart
             segments={donutSegments}
-            centerText={`${totalTasks} Tasks`}
+            centerText={`${total} Tasks`}
             size={220}
             strokeWidth={32}
           />
@@ -100,21 +102,21 @@ export default function AdminDashboard() {
         <div className="w-full flex justify-between px-4">
           <StatBar
             label={"Flagged\nusers"}
-            value={`${MOCK_FLAGGED_USERS_PERCENT}%`}
+            value={`${flaggedUsersPercent}%`}
             color="#A53A3A"
-            progress={MOCK_FLAGGED_USERS_PERCENT}
+            progress={flaggedUsersPercent}
           />
           <StatBar
             label={"Flagged\ncontent"}
-            value={`${MOCK_FLAGGED_CONTENT_PERCENT}%`}
-            color="#FFF081"
-            progress={MOCK_FLAGGED_CONTENT_PERCENT}
+            value={`${flaggedContentPercent}%`}
+            color="#5B8DEF"
+            progress={flaggedContentPercent}
           />
           <StatBar
-            label={"Resolved\ntasks"}
-            value={`${resolvedPercent}%`}
-            color="#4ADE80"
-            progress={resolvedPercent}
+            label={"Merge\nduplicates"}
+            value={`${mergeDuplicatesPercent}%`}
+            color="#FFF081"
+            progress={mergeDuplicatesPercent}
           />
         </div>
 

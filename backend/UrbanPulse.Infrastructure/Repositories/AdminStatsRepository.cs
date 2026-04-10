@@ -47,6 +47,19 @@ public class AdminStatsRepository : IAdminStatsRepository
 
         var resolvedTasks = 0;
 
+        var flaggedUsersCount = await _context.UserReports
+        .Select(r => r.ReportedUserId)
+        .Distinct()
+        .CountAsync();
+
+    var flaggedContentCount = await _context.Reports
+        .Select(r => r.EventId)
+        .Distinct()
+        .CountAsync();
+
+    var mergeDuplicatesCount = await _context.DuplicateSuspects
+        .CountAsync(d => !d.IsDismissed);
+     
         return new AdminStatsDto
         {
             TotalTasks = totalTasks,
@@ -59,6 +72,9 @@ public class AdminStatsRepository : IAdminStatsRepository
             TotalUsers = totalUsers,
             VerifiedUsers = verifiedUsers,
             UnverifiedUsers = unverifiedUsers,
+            FlaggedUsersCount = flaggedUsersCount,
+            FlaggedContentCount = flaggedContentCount,
+            MergeDuplicatesCount = mergeDuplicatesCount
         };
     }
 }

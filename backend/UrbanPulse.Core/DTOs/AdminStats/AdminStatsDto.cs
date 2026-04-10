@@ -14,4 +14,8 @@ public class AdminStatsDto
     public int TotalUsers { get; set; }
     public int VerifiedUsers { get; set; }
     public int UnverifiedUsers { get; set; }
+
+    public int FlaggedUsersCount { get; set; }
+    public int FlaggedContentCount { get; set; }
+    public int MergeDuplicatesCount { get; set; }
 }
