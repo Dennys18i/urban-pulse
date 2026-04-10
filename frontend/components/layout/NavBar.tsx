@@ -16,27 +16,17 @@ export default function NavBar() {
   }
 
   return (
-        <div className="
-    fixed bottom-4 left-4 
-    h-[70px]                  
-    w-[calc(100vw-32px)] 
-    rounded-3xl 
-    flex justify-center items-center 
-    overflow-hidden 
-    lg:hidden 
-    bg-zinc-950/20 
-    backdrop-blur 
-    border border-white/20 
-    z-50                      
-  ">
-        <Image
+    <div
+      className="fixed bottom-4 left-4 h-15 w-[calc(100vw-32px)] rounded-3xl flex justify-center items-center overflow-hidden lg:hidden bg-zinc-950/20 backdrop-blur border border-white/20 z-50"
+    >
+      <Image
         src="/navbar.svg"
         alt="navbar"
         fill
         priority
         className="object-cover opacity-100"
       />
-        <nav className="container h-full w-full flex justify-between items-center px-8 relative z-10">      
+      <nav className="container h-full w-full flex justify-between items-center px-8 relative z-10">
         <Link href={isAdmin ? "/admin" : "/dashboard"}>
           <Home
             size={28}
