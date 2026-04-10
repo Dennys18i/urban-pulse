@@ -15,7 +15,6 @@ interface Conversation {
   lastMessage: string | null;
   lastMessageAt: string | null;
   unreadCount: number;
-  eventId: number | null;
 }
 
 function getInitials(name: string | null, email: string) {
@@ -28,12 +27,14 @@ function formatTime(dateStr: string | null) {
   const date = new Date(dateStr);
   const now = new Date();
   const isToday = date.toDateString() === now.toDateString();
-  if (isToday) return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}`;
+  if (isToday)
+    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")} ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 export default function ChatsPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [avatarUrls, setAvatarUrls] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -45,46 +46,80 @@ export default function ChatsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (conversations.length === 0) return;
+    const token = localStorage.getItem("token");
+    const uniqueIds = [...new Set(conversations.map((c) => c.otherUserId))];
+    Promise.all(
+      uniqueIds.map((uid) =>
+        fetch(`${API}/api/user/${uid}`, { headers: { Authorization: `Bearer ${token}` } })
+          .then((res) => res.json())
+          .then((data) => ({ uid, avatarUrl: data.avatarUrl ?? null }))
+      )
+    ).then((results) => {
+      const map: Record<number, string> = {};
+      results.forEach(({ uid, avatarUrl }) => { if (avatarUrl) map[uid] = avatarUrl; });
+      setAvatarUrls(map);
+    });
+  }, [conversations]);
+
   return (
     <div className="w-full flex flex-col gap-4 pb-[8vh]">
-      <h1 className="text-white font-bold text-2xl">Messages</h1>
-
       {loading && <p className="text-white/40 text-sm text-center mt-10">Loading...</p>}
-      {!loading && conversations.length === 0 && <p className="text-white/40 text-sm text-center mt-10">No conversations yet.</p>}
+      {!loading && conversations.length === 0 && (
+        <p className="text-white/40 text-sm text-center mt-10">No conversations yet.</p>
+      )}
 
-      <div className="flex flex-col gap-3">
-        {conversations.map((conv) => (
-          <button key={conv.id} onClick={() => router.push(`/chat-conversation/${conv.id}`)}
-            className="w-full bg-secondary rounded-2xl px-4 py-3 flex items-center gap-3 text-left"
-          >
-            <div className="w-12 h-12 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {conv.otherUserAvatarUrl ? (
-                <Image src={conv.otherUserAvatarUrl} width={48} height={48} alt={conv.otherUserFullName ?? ""} className="object-cover w-full h-full" />
-              ) : (
-                <span className="text-sm font-semibold text-white/60">
-                  {getInitials(conv.otherUserFullName, conv.otherUserEmail)}
-                </span>
-              )}
-            </div>
+      {conversations.length > 0 && (
+        <>
+          <div className="flex flex-col gap-1 mt-1">
+            <span className="text-white font-bold text-lg">Your chats</span>
+            <div className="w-full h-px bg-white/20" />
+          </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-white font-semibold text-sm">
-                  {conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]}
-                </span>
-                <span className="text-white/30 text-xs">{formatTime(conv.lastMessageAt)}</span>
-              </div>
-              <p className="text-white/40 text-xs mt-0.5 truncate">{conv.lastMessage ?? "No messages yet"}</p>
-            </div>
-
-            {conv.unreadCount > 0 && (
-              <div className="w-5 h-5 rounded-full bg-green-400 flex items-center justify-center flex-shrink-0">
-                <span className="text-black text-[10px] font-bold">{conv.unreadCount}</span>
-              </div>
-            )}
-          </button>
-        ))}
-      </div>
+          <div className="flex flex-col gap-3">
+            {conversations.map((conv) => (
+              <button
+                key={conv.id}
+                onClick={() => router.push(`/chat-conversation/${conv.id}`)}
+                className="w-full bg-secondary rounded-2xl px-4 py-3 flex flex-col gap-2 text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    {avatarUrls[conv.otherUserId] ? (
+                      <Image
+                        src={avatarUrls[conv.otherUserId]}
+                        width={36}
+                        height={36}
+                        alt={conv.otherUserFullName ?? ""}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <span className="text-xs font-semibold text-white/60">
+                        {getInitials(conv.otherUserFullName, conv.otherUserEmail)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1 flex items-center justify-between min-w-0">
+                    <span className="text-white font-semibold text-base truncate">
+                      {conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]}
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {conv.unreadCount > 0 && (
+                        <span className="w-2 h-2 rounded-full bg-green-400" />
+                      )}
+                      <span className="text-white/40 text-xs">{formatTime(conv.lastMessageAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-white/40 text-sm truncate">
+                  {conv.lastMessage ?? "No messages yet"}
+                </p>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

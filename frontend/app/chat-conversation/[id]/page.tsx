@@ -29,6 +29,7 @@ export default function ChatPage() {
   const [text, setText] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [otherUserName, setOtherUserName] = useState("");
+  const [otherUserAvatar, setOtherUserAvatar] = useState<string | null>(null);
   const [ratedMessages, setRatedMessages] = useState<Set<number>>(new Set());
   const [helpedMessages, setHelpedMessages] = useState<Set<number>>(new Set());
   const [hasRated, setHasRated] = useState(false);
@@ -52,6 +53,11 @@ export default function ChatPage() {
         const conv = data.find((c: any) => c.id === Number(id));
         if (conv) {
           setOtherUserName(conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]);
+          fetch(`http://localhost:5248/api/user/${conv.otherUserId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((res) => res.json())
+            .then((profile) => setOtherUserAvatar(profile.avatarUrl ?? null));
         }
       });
 
@@ -127,10 +133,14 @@ export default function ChatPage() {
         <button onClick={() => router.back()}>
           <Image src="/undo.svg" alt="back" width={40} height={30} />
         </button>
-        <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center">
-          <span className="text-xs font-semibold text-white/60">
-            {otherUserName?.slice(0, 2).toUpperCase()}
-          </span>
+        <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+          {otherUserAvatar ? (
+            <Image src={otherUserAvatar} width={36} height={36} alt={otherUserName} className="object-cover w-full h-full" />
+          ) : (
+            <span className="text-xs font-semibold text-white/60">
+              {otherUserName?.slice(0, 2).toUpperCase()}
+            </span>
+          )}
         </div>
         <span className="text-white font-bold">{otherUserName}</span>
       </div>
