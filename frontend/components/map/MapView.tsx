@@ -287,22 +287,43 @@ function MarkersLayer({
     });
 
     eventMarkers.forEach(({ event, type }) => {
-      const color = type === "emergency" ? "#EF4444" : type === "skill" ? "#FFD700" : "#3B82F6";
-      const seed = event.id * 6271 + 12347;
-      const rLat = ((seed % 233280) / 233280 - 0.5) * 0.001;
-      const rLng = (((seed * 4421) % 233280) / 233280 - 0.5) * 0.0015;
-      const circle = L.circle([event.latitude + rLat, event.longitude + rLng], {
-        radius: 300,
-        color,
-        fillColor: color,
-        fillOpacity: type === "emergency" ? 0.35 : 0.25,
-        opacity: type === "emergency" ? 0.8 : 0.6,
-        weight: type === "emergency" ? 3 : 2,
-        className: type === "emergency" ? "emergency-circle" : "",
-      }).addTo(map);
-      circle.on("click", () => onEventClick(event));
-      refs.current.push(circle);
+  const color = type === "emergency" ? "#EF4444" : type === "skill" ? "#FFD700" : "#3B82F6";
+  const seed = event.id * 6271 + 12347;
+  const rLat = ((seed % 233280) / 233280 - 0.5) * 0.001;
+  const rLng = (((seed * 4421) % 233280) / 233280 - 0.5) * 0.0015;
+
+  if (type === "emergency") {
+    const icon = L.divIcon({
+      className: "",
+      html: `<div style="
+      width: 26px; height: 26px;
+      background: #EF4444;
+      border: 2px solid #EF4444;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(239,68,68,0.8), 0 0 24px rgba(239,68,68,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: bold; color: white;
+      line-height: 1;
+    ">🚨</div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
     });
+    const marker = L.marker([event.latitude, event.longitude], { icon }).addTo(map);
+    marker.on("click", () => onEventClick(event));
+    refs.current.push(marker);
+  } else {
+    const circle = L.circle([event.latitude + rLat, event.longitude + rLng], {
+      radius: 300,
+      color,
+      fillColor: color,
+      fillOpacity: 0.25,
+      opacity: 0.6,
+      weight: 2,
+    }).addTo(map);
+    circle.on("click", () => onEventClick(event));
+    refs.current.push(circle);
+  }
+});
 
     return () => {
       refs.current.forEach((m) => map.removeLayer(m));
