@@ -7,10 +7,12 @@ interface CardMediaProps {
 export default function CardMedia({ imageUrl }: CardMediaProps) {
   if (!imageUrl) return null;
 
+  const src = imageUrl.startsWith("http") ? imageUrl : `http://localhost:5248${imageUrl}`;
+
   return (
     <div className="relative w-full -mt-3 -z-10">
       <Image
-        src={`http://localhost:5248${imageUrl}`}
+        src={src}
         alt="Event Image"
         width={350}
         height={220}
