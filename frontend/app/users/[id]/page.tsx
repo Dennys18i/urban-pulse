@@ -19,6 +19,11 @@ interface UserProfile {
   createdAt: string;
   helpedCount: number;
   postsCount: number;
+  avatarUrl?: string | null;
+}
+
+function getInitials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export default function UserProfilePage() {
@@ -81,21 +86,26 @@ export default function UserProfilePage() {
     );
   }
 
-  const displayName =
-    profile.fullName ?? profile.email?.split("@")[0] ?? "User";
+  const displayName = profile.fullName ?? profile.email?.split("@")[0] ?? "User";
 
   return (
     <div className="w-full flex flex-col gap-8 mt-7 pb-10">
       {/* Avatar + Name + Trust score */}
       <section className="w-full flex justify-around items-center">
-        <div className="size-35 rounded-full overflow-hidden">
-          <Image
-            src="/profile.png"
-            alt={displayName}
-            width={140}
-            height={140}
-            className="object-cover w-full h-full"
-          />
+        <div className="size-35 rounded-full overflow-hidden bg-secondary flex items-center justify-center">
+          {profile.avatarUrl ? (
+            <Image
+              src={profile.avatarUrl}
+              alt={displayName}
+              width={140}
+              height={140}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span className="text-white text-4xl font-bold">
+              {getInitials(displayName)}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">
@@ -153,7 +163,7 @@ export default function UserProfilePage() {
           Message
         </button>
         <button
-          onClick={() => router.push(`/report?userId=${id}`)}
+          onClick={() => router.push(`/report-user?userId=${id}`)}
           className="flex-1 py-3 rounded-2xl bg-red-emergency/80 text-white font-bold text-sm hover:bg-red-emergency transition-colors cursor-pointer"
         >
           Report
@@ -194,9 +204,7 @@ export default function UserProfilePage() {
 
         {/* Skills */}
         <section className="w-full min-h-25 border-2 border-yellow-primary rounded-2xl flex flex-col justify-center gap-2 items-baseline py-4 px-6 shadow-sm bg-[#1C1C1C]">
-          <h2 className="text-yellow-primary text-xl font-bold font-montagu">
-            Skills
-          </h2>
+          <h2 className="text-yellow-primary text-xl font-bold font-montagu">Skills</h2>
           {profile.skills && profile.skills.length > 0 ? (
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full overflow-hidden">
               {profile.skills.map((skill, i) => (
@@ -213,9 +221,7 @@ export default function UserProfilePage() {
 
         {/* Tools & Resources */}
         <section className="w-full min-h-25 border-2 border-yellow-primary rounded-2xl flex flex-col justify-center gap-2 items-baseline py-4 px-6 shadow-sm bg-[#1C1C1C]">
-          <h2 className="text-yellow-primary text-xl font-bold font-montagu">
-            Tools & Resources
-          </h2>
+          <h2 className="text-yellow-primary text-xl font-bold font-montagu">Tools & Resources</h2>
           {profile.tools && profile.tools.length > 0 ? (
             <div className="w-full flex flex-col gap-y-2 overflow-hidden">
               {profile.tools.map((tool, i) => (
