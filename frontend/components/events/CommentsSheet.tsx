@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { X, Send } from "lucide-react";
 import { useSignalR } from "@/context/SignalRContext";
 
@@ -36,11 +37,30 @@ function timeAgo(dateStr: string) {
 }
 
 export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) {
+  const router = useRouter();
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [feedStyle, setFeedStyle] = useState<React.CSSProperties>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const { connection } = useSignalR();
+
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth >= 500) {
+        const feed = document.getElementById("feed-scroll");
+        if (feed) {
+          const rect = feed.getBoundingClientRect();
+          setFeedStyle({ left: rect.left, width: rect.width, right: "auto" });
+        }
+      } else {
+        setFeedStyle({});
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -97,7 +117,10 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
       />
 
       {/* Bottom sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] rounded-t-3xl flex flex-col max-h-[75vh] animate-fade-up">
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] rounded-t-3xl lg:rounded-t-3xl lg:rounded-b-none flex flex-col max-h-[75vh] lg:max-h-100 animate-fade-up"
+        style={feedStyle}
+      >
         
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -120,7 +143,10 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3 items-start">
               {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <div
+                className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden cursor-pointer"
+                onClick={() => router.push(`/users/${comment.createdByUserId}`)}
+              >
                 {comment.avatarUrl ? (
                   <img src={comment.avatarUrl} alt={comment.fullName ?? comment.createdByEmail} className="w-full h-full object-cover" />
                 ) : (
@@ -130,7 +156,10 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
               {/* Content */}
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <span className="text-white text-sm font-semibold">
+                  <span
+                    className="text-white text-sm font-semibold cursor-pointer hover:underline"
+                    onClick={() => router.push(`/users/${comment.createdByUserId}`)}
+                  >
                     {comment.fullName ?? comment.createdByEmail?.split("@")[0]}
                   </span>
                   <span className="text-white/30 text-xs">
