@@ -77,7 +77,7 @@ export default function FlaggedContentDetailPage() {
         <div className="flex items-center justify-between relative">
           <button
             onClick={() => router.back()}
-            className="cursor-pointer hover:scale-105 active:scale-95 z-10"
+            className="cursor-pointer hover:scale-105 active:scale-95 z-10 lg:hidden"
           >
             <Image
               src="/undo.svg"
@@ -87,7 +87,8 @@ export default function FlaggedContentDetailPage() {
               className="-ml-2"
             />
           </button>
-          
+          <div className="hidden lg:block" />
+
           <CheckButton onClick={() => setShowResolveModal(true)} />
         </div>
 

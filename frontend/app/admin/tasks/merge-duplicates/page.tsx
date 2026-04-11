@@ -61,13 +61,20 @@ export default function MergeDuplicatesPage() {
   return (
     <ThreeColumnLayoutAdmin>
     <div className="w-full flex flex-col gap-4 animate-fade-up pb-20">
-      {/* Header */}
-      <div className="flex items-center relative mb-4">
+      {/* Mobile Header */}
+      <div className="flex items-center relative mb-4 lg:hidden">
         <GoBackButton />
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <h1 className="text-white font-bold text-xl">Merge duplicates</h1>
           <span className="w-2.5 h-2.5 rounded-full bg-yellow-primary" />
         </div>
+      </div>
+      {/* Desktop Header */}
+      <div className="hidden lg:flex items-center gap-3 mb-4">
+        <div className="flex-1 h-px bg-white/60" />
+        <h1 className="text-white font-bold text-xl">Merge duplicates</h1>
+        <span className="w-2.5 h-2.5 rounded-full bg-yellow-primary" />
+        <div className="flex-1 h-px bg-white/60" />
       </div>
 
       {loading && (

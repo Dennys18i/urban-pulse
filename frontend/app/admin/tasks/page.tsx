@@ -65,8 +65,8 @@ export default function AdminTasksPage() {
   return (
     <ThreeColumnLayoutAdmin>
     <div className="w-full flex flex-col gap-6 animate-fade-up">
-      {/* Header */}
-      <div className="flex items-center relative">
+      {/* Mobile Header */}
+      <div className="flex items-center relative lg:hidden">
         <button
           onClick={() => router.back()}
           className="cursor-pointer hover:scale-105 active:scale-95 z-10"
@@ -79,13 +79,12 @@ export default function AdminTasksPage() {
             className="-ml-2"
           />
         </button>
-
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <h1 className="text-white font-bold text-xl">Tasks</h1>
           <span className="w-2.5 h-2.5 rounded-full bg-red-emergency" />
         </div>
       </div>
-
+      
       {/* Task cards */}
       <div className="flex flex-col gap-6 mt-2">
         {tasks.map((task) => (

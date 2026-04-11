@@ -80,7 +80,7 @@ export default function ReviewDuplicatePostsPage() {
     <ThreeColumnLayoutAdmin>
     <div className="w-full flex flex-col gap-6 animate-fade-up pb-32">
       {/* Header — back button */}
-      <div className="flex items-center">
+      <div className="flex items-center lg:hidden">
         <GoBackButton />
       </div>
 
