@@ -20,6 +20,7 @@
         public int TasksDuplicatesMerged { get; set; } = 0;
         public int TasksDismissed { get; set; } = 0;
         public bool IsBanned { get; set; } = false;
+        public DateTime? BannedAt { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
     }

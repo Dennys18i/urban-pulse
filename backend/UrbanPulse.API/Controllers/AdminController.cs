@@ -173,6 +173,7 @@ public class AdminController : ControllerBase
         if (user == null) return NotFound();
 
         user.IsBanned = true;
+        user.BannedAt = DateTime.UtcNow;
 
         var reports = await _context.UserReports
             .Where(r => r.ReportedUserId == userId)
@@ -199,7 +200,7 @@ public class AdminController : ControllerBase
                 Id = u.Id.ToString(),
                 Name = u.FullName ?? u.Email,
                 Avatar = u.AvatarUrl,
-                BannedOn = u.UpdatedAt.HasValue ? u.UpdatedAt.Value.ToString("dd/MM/yyyy") : "",
+                BannedOn = u.BannedAt.HasValue ? u.BannedAt.Value.ToString("dd/MM/yyyy") : "",
             })
             .ToListAsync();
 
