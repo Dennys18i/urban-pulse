@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UrbanPulse.Infrastructure.Data;
@@ -11,9 +12,11 @@ using UrbanPulse.Infrastructure.Data;
 namespace UrbanPulse.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411103602_AddNotificationSenderAvatar")]
+    partial class AddNotificationSenderAvatar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,9 +434,6 @@ namespace UrbanPulse.Infrastructure.Migrations
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("BannedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
@@ -449,9 +449,6 @@ namespace UrbanPulse.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsBanned")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsVerified")
@@ -478,18 +475,6 @@ namespace UrbanPulse.Infrastructure.Migrations
 
                     b.Property<string>("Skills")
                         .HasColumnType("text");
-
-                    b.Property<int>("TasksBanned")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TasksDismissed")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TasksDuplicatesMerged")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TasksPostsDeleted")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Tools")
                         .HasColumnType("text");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import EventCard from "@/components/events/EventCard";
 import EventFilters from "@/components/dashboard/EventFilters";
 import DashboardBanner from "@/components/dashboard/DashboardBanner";
@@ -18,6 +19,8 @@ export default function DashboardPage() {
   const [isSevereWeather, setIsSevereWeather] = useState(false);
 
   const { connection } = useSignalR();
+  const searchParams = useSearchParams();
+  const targetEventId = searchParams.get("eventId");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,6 +53,13 @@ export default function DashboardPage() {
     };
   }, [connection]);
 
+  useEffect(() => {
+    if (loading || !targetEventId) return;
+    const el = document.getElementById(`event-${targetEventId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [loading, targetEventId]);
 
   const filteredEvents =
     activeFilter === "ALL"
