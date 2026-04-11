@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useSignalR } from "@/context/SignalRContext";
 
 interface UserProfile {
   id: number;
@@ -8,6 +9,7 @@ interface UserProfile {
   fullName?: string;
   role?: string;
   isVerified?: boolean;
+  isBanned?: boolean;
   trustScore?: number;
   avatarUrl?: string | null;
   latitude?: number;
@@ -30,10 +32,17 @@ const UserContext = createContext<UserContextType>({
   setViewAsUser: () => {},
 });
 
+function logoutAndRedirect() {
+  localStorage.removeItem("token");
+  document.cookie = "token=; path=/; max-age=0";
+  window.location.href = "/";
+}
+
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewAsUser, setViewAsUserState] = useState<boolean>(true);
+  const { notificationConnection } = useSignalR();
 
   useEffect(() => {
     const saved = localStorage.getItem("viewAsUser");
@@ -48,10 +57,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => setUser(data))
+      .then((data) => {
+        if (data.isBanned) {
+          logoutAndRedirect();
+          return;
+        }
+        setUser(data);
+      })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!notificationConnection) return;
+    notificationConnection.on("UserBanned", logoutAndRedirect);
+    return () => notificationConnection.off("UserBanned", logoutAndRedirect);
+  }, [notificationConnection]);
 
   const setViewAsUser = (value: boolean) => {
     setViewAsUserState(value);

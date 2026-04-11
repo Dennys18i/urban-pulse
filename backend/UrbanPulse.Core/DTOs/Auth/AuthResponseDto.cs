@@ -10,6 +10,7 @@ namespace UrbanPulse.Core.DTOs.Auth
     {
         public string Token { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public bool IsBanned { get; set; } = false;
         public string Role { get; set; } = string.Empty;
     }
 }

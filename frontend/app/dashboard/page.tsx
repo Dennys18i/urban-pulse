@@ -40,10 +40,16 @@ export default function DashboardPage() {
       setEvents((prev) => [newEvent, ...prev]);
     };
 
+    const handleEventDeactivated = (eventId: number) => {
+      setEvents((prev) => prev.filter((e) => e.id !== eventId));
+    };
+
     connection.on("NewEvent", handleNewEvent);
+    connection.on("EventDeactivated", handleEventDeactivated);
 
     return () => {
       connection.off("NewEvent", handleNewEvent);
+      connection.off("EventDeactivated", handleEventDeactivated);
     };
   }, [connection]);
 

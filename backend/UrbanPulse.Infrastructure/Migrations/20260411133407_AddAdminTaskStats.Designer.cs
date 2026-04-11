@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UrbanPulse.Infrastructure.Data;
@@ -11,9 +12,11 @@ using UrbanPulse.Infrastructure.Data;
 namespace UrbanPulse.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411133407_AddAdminTaskStats")]
+    partial class AddAdminTaskStats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,9 +297,6 @@ namespace UrbanPulse.Infrastructure.Migrations
                     b.Property<int?>("RelatedEventId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SenderAvatarUrl")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -430,9 +430,6 @@ namespace UrbanPulse.Infrastructure.Migrations
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("BannedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Bio")
                         .HasColumnType("text");

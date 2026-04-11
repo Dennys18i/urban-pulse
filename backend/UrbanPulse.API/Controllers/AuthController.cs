@@ -31,7 +31,10 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(dto);
         if (result == null)
-            return Unauthorized(new { message = "Credențiale invalide." });
+            return Unauthorized(new { message = "Invalid credentials" });
+
+        if (result.IsBanned)
+            return Unauthorized(new { message = "banned" });
 
         return Ok(result);
     }

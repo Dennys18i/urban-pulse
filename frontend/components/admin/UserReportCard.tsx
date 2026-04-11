@@ -7,7 +7,6 @@ interface UserReportCardProps {
   reporterAvatar: string;
   date: string;
   time: string;
-  title: string;
   description: string;
 }
 
@@ -16,7 +15,6 @@ export default function UserReportCard({
   reporterAvatar,
   date,
   time,
-  title,
   description,
 }: UserReportCardProps) {
   return (
@@ -33,27 +31,16 @@ export default function UserReportCard({
           />
         </div>
         <div className="flex flex-col flex-1">
-          <span className="text-white font-bold text-base">
-            {reporterName}
-          </span>
-          <span className="text-white/40 text-xs">
-            {date} · {time}
-          </span>
+          <span className="text-white font-bold text-base">{reporterName}</span>
+          <span className="text-white/40 text-xs">{date} · {time}</span>
         </div>
       </div>
 
       <div className="h-px bg-white/40 mb-2" />
 
-      {/* Title */}
-      <div className="bg-red-emergency/50 rounded-[10] px-4 py-2.5">
-        <span className="text-white">{title}</span>
-      </div>
-
       {/* Description */}
-      <div className="bg-third rounded-[20] p-4">
-        <p className="text-white">
-          {description}
-        </p>
+      <div className="bg-red-emergency/50 rounded-[20] p-4">
+        <p className="text-white">{description}</p>
       </div>
     </div>
   );
