@@ -104,20 +104,22 @@ export default function NotificationsPanel({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/40 transition-opacity duration-300 ${
           open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
+        style={{ zIndex: 9998 }}
         onClick={onClose}
       />
 
       {/* Slide-in panel */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 w-105 max-w-full flex flex-col
+        className={`fixed top-0 right-0 h-full w-105 max-w-full flex flex-col
           bg-background border-l border-white/10 shadow-2xl
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "translate-x-full"}`}
+        style={{ zIndex: 9999 }}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-6 pt-5 shrink-0 gap-3">
