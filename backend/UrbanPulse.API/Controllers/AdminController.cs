@@ -160,4 +160,33 @@ public class AdminController : ControllerBase
         .SendAsync("UserBanned");
         return Ok();
     }
+
+    [HttpGet("banned-users")]
+    public async Task<IActionResult> GetBannedUsers()
+    {
+        var users = await _context.Users
+            .Where(u => u.IsBanned)
+            .Select(u => new
+            {
+                Id = u.Id.ToString(),
+                Name = u.FullName ?? u.Email,
+                Avatar = u.AvatarUrl,
+                BannedOn = u.UpdatedAt.HasValue ? u.UpdatedAt.Value.ToString("dd/MM/yyyy") : "",
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
+    [HttpPost("banned-users/{userId}/unban")]
+    public async Task<IActionResult> UnbanUser(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound();
+
+        user.IsBanned = false;
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
 }
