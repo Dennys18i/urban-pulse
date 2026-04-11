@@ -11,9 +11,9 @@ export default function NavBar() {
   const pathname = usePathname();
   const { isAdmin } = useUser();
 
-  if (pathname.startsWith("/profile")) {
-    return null;
-  }
+  if (pathname.startsWith("/profile") || pathname.startsWith("/global-chat") || pathname.startsWith("/chat-conversation")) {
+  return null;
+}
 
   return (
     <div

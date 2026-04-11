@@ -33,7 +33,11 @@ export default function LoginForm() {
       }
 
       const data = await res.json();
+
       localStorage.setItem("token", data.token);
+      document.cookie = `token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
+
       router.push("/dashboard");
     } catch {
       setError("Connection error. Please try again.");

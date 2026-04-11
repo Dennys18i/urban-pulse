@@ -29,7 +29,11 @@ export default function Settings() {
       });
   }, []);
 
-  const handleLogOut = () => { localStorage.removeItem("token"); router.push("/"); };
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    document.cookie = "token=; path=/; max-age=0";
+    router.push("/");
+  };
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
@@ -37,6 +41,7 @@ export default function Settings() {
       const token = localStorage.getItem("token");
       await fetch(`${API}/api/user`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       localStorage.removeItem("token");
+      document.cookie = "token=; path=/; max-age=0";
       router.push("/");
     } catch { setDeleting(false); }
   };

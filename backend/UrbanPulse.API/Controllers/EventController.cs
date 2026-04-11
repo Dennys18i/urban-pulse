@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
@@ -21,6 +23,7 @@ namespace UrbanPulse.API.Controllers
         private readonly IConversationRepository _conversationRepository;
         private readonly INotificationService _notificationService;
         private readonly IUserRepository _userRepository;
+        private readonly Cloudinary _cloudinary;
 
         public EventController(
             IEventService eventService,
@@ -36,6 +39,11 @@ namespace UrbanPulse.API.Controllers
             _conversationRepository = conversationRepository;
             _notificationService = notificationService;
             _userRepository = userRepository;
+
+            var cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
+            var apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
+            var apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
+            _cloudinary = new Cloudinary(new Account(cloudName, apiKey, apiSecret));
         }
 
         [HttpPost]
@@ -51,13 +59,19 @@ namespace UrbanPulse.API.Controllers
                 if (!allowedExtensions.Contains(extension))
                     return BadRequest(new { message = "Invalid file type." });
 
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await file.CopyToAsync(stream);
-                imageUrl = $"/uploads/{fileName}";
+                using var stream = file.OpenReadStream();
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "events",
+                    Transformation = new Transformation().Width(1200).Height(800).Crop("limit").Quality("auto"),
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error != null)
+                    return BadRequest(new { message = uploadResult.Error.Message });
+
+                imageUrl = uploadResult.SecureUrl.ToString();
             }
 
             var result = await _eventService.CreateEventAsync(dto, userId, imageUrl);
@@ -95,6 +109,7 @@ namespace UrbanPulse.API.Controllers
                     }
                 }
             }
+
             if (dto.Type == EventType.Emergency)
             {
                 var allUsers = await _userRepository.GetAllUsersAsync();
@@ -102,7 +117,6 @@ namespace UrbanPulse.API.Controllers
                 foreach (var user in allUsers)
                 {
                     if (user.Id == userId) continue;
-                    Console.WriteLine($"Sending to user {user.Id}");
 
                     var notification = await _notificationService.SendAsync(new CreateNotificationDto
                     {
@@ -194,6 +208,13 @@ namespace UrbanPulse.API.Controllers
             await _eventService.DeactivateAsync(id);
             await _hubContext.Clients.All.SendAsync("EventDeactivated", id);
             return Ok();
+        }
+
+        [HttpGet("by-user/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId)
+        {
+            var events = await _eventService.GetByUserIdAsync(userId);
+            return Ok(events);
         }
     }
 }

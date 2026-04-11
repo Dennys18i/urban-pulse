@@ -19,6 +19,8 @@ public class AppDbContext : DbContext
     public DbSet<SavedPost> SavedPosts { get; set; }
     public DbSet<UserReport> UserReports { get; set; }
     public DbSet<DuplicateSuspect> DuplicateSuspects { get; set; }
+    public DbSet<GlobalMessage> GlobalMessages { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

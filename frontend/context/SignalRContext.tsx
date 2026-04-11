@@ -7,11 +7,13 @@ import * as signalR from "@microsoft/signalr";
 interface SignalRContextType {
   connection: signalR.HubConnection | null;
   notificationConnection: signalR.HubConnection | null;
+  globalChatConnection: signalR.HubConnection | null;
 }
 
 const SignalRContext = createContext<SignalRContextType>({
   connection: null,
   notificationConnection: null,
+  globalChatConnection: null,
 });
 
 const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password"];
@@ -19,6 +21,7 @@ const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password"];
 export const SignalRProvider = ({ children }: { children: React.ReactNode }) => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [notificationConnection, setNotificationConnection] = useState<signalR.HubConnection | null>(null);
+  const [globalChatConnection, setGlobalChatConnection] = useState<signalR.HubConnection | null>(null);
   const pathname = usePathname();
 
   const isPublic = PUBLIC_ROUTES.includes(pathname);
@@ -26,6 +29,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     if (isPublic) return;
 
+    // Events hub
     const eventsConn = new signalR.HubConnectionBuilder()
       .withUrl("http://localhost:5248/hubs/events")
       .withAutomaticReconnect()
@@ -36,6 +40,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
 
     const token = localStorage.getItem("token");
     if (token) {
+      // Notifications hub
       const notifConn = new signalR.HubConnectionBuilder()
         .withUrl("http://localhost:5248/hubs/notifications", {
           accessTokenFactory: () => localStorage.getItem("token") ?? "",
@@ -45,6 +50,17 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
 
       setNotificationConnection(notifConn);
       notifConn.start().catch((err) => console.error("Notifications SignalR error:", err));
+
+      // Global chat hub
+      const globalConn = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5248/hubs/global-chat", {
+          accessTokenFactory: () => localStorage.getItem("token") ?? "",
+        })
+        .withAutomaticReconnect()
+        .build();
+
+      setGlobalChatConnection(globalConn);
+      globalConn.start().catch((err) => console.error("Global chat SignalR error:", err));
     }
 
     return () => {
@@ -53,7 +69,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
   }, [isPublic]);
 
   return (
-    <SignalRContext.Provider value={{ connection, notificationConnection }}>
+    <SignalRContext.Provider value={{ connection, notificationConnection, globalChatConnection }}>
       {children}
     </SignalRContext.Provider>
   );
