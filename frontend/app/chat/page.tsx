@@ -65,9 +65,32 @@ export default function ChatsPage() {
 
   return (
     <div className="w-full flex flex-col gap-4 pb-[8vh]">
-      {loading && <p className="text-white/40 text-sm text-center mt-10">Loading...</p>}
+
+      {/* Global chat card */}
+      <button
+        onClick={() => router.push("/global-chat")}
+        className="w-full bg-secondary border border-green-light rounded-2xl px-4 py-4 flex flex-col gap-2 text-left cursor-pointer transition-transform active:scale-[0.98]"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-green-light/20 border border-green-light flex items-center justify-center shrink-0">
+            <span className="text-green-light font-bold text-xs">ALL</span>
+          </div>
+          <div className="flex-1 flex items-center justify-between min-w-0">
+            <span className="text-green-light font-bold text-base">
+              Neighbours' chat
+            </span>
+            <span className="w-2 h-2 rounded-full bg-green-light" />
+          </div>
+        </div>
+        <p className="text-white/40 text-sm">
+          Chat with all your neighbours
+        </p>
+      </button>
+
+      {loading && <p className="text-white/40 text-sm text-center mt-6">Loading...</p>}
+
       {!loading && conversations.length === 0 && (
-        <p className="text-white/40 text-sm text-center mt-10">No conversations yet.</p>
+        <p className="text-white/40 text-sm text-center mt-6">No private conversations yet.</p>
       )}
 
       {conversations.length > 0 && (

@@ -145,6 +145,7 @@ namespace UrbanPulse_Backend
             app.UseStaticFiles();
             app.MapHub<EventHub>("/hubs/events");
             app.MapHub<NotificationHub>("/hubs/notifications");
+            app.MapHub<GlobalChatHub>("/hubs/global-chat");
 
             app.Run();
         }

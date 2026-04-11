@@ -60,19 +60,13 @@ export default function TopBar({ back, notifications, settings, addPost }: TopBa
 
   useEffect(() => {
     if (!notifications) return;
-    const fetchCount = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5248/api/notification/unread-count", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUnreadCount(data.count);
-      }
-    };
-    fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5248/api/notification/unread-count", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setUnreadCount(data.count))
+      .catch(() => {});
   }, [notifications]);
 
   useEffect(() => {
