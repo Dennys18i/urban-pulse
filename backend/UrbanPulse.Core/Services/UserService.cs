@@ -115,6 +115,7 @@ public class UserService : IUserService
         Role = user.Role,
         IsVerified = user.IsVerified,
         TrustScore = user.TrustScore,
+        IsBanned = user.IsBanned,
         CreatedAt = user.CreatedAt,
         Latitude = user.Latitude,
         Longitude = user.Longitude,

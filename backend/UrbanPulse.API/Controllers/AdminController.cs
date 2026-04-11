@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using UrbanPulse.Core.Interfaces;
 using UrbanPulse.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using UrbanPulse.Core.DTOs;
+using UrbanPulse.API.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace UrbanPulse.API.Controllers;
 
@@ -15,17 +18,20 @@ public class AdminController : ControllerBase
     private readonly IDuplicateSuspectRepository _duplicateSuspectRepository;
     private readonly IUserRepository _userRepository;
     private readonly AppDbContext _context;
+    private readonly IHubContext<NotificationHub> _notificationHub;
 
     public AdminController(
-        IAdminStatsRepository adminStatsRepository,
-        IDuplicateSuspectRepository duplicateSuspectRepository,
-        IUserRepository userRepository,
-        AppDbContext context)
+    IAdminStatsRepository adminStatsRepository,
+    IDuplicateSuspectRepository duplicateSuspectRepository,
+    IUserRepository userRepository,
+    AppDbContext context,
+    IHubContext<NotificationHub> notificationHub)
     {
         _adminStatsRepository = adminStatsRepository;
         _duplicateSuspectRepository = duplicateSuspectRepository;
         _userRepository = userRepository;
         _context = context;
+        _notificationHub = notificationHub;
     }
 
     [HttpGet("stats")]
@@ -91,5 +97,67 @@ public class AdminController : ControllerBase
             .ToListAsync();
 
         return Ok(flaggedUsers);
+    }
+
+    [HttpGet("flagged-users/{userId}")]
+    public async Task<IActionResult> GetFlaggedUserDetail(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound();
+
+        var reports = await _context.UserReports
+            .Where(r => r.ReportedUserId == userId)
+            .Include(r => r.ReporterUser)
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new
+            {
+                Id = r.Id,
+                ReporterName = r.ReporterUser.FullName ?? r.ReporterUser.Email,
+                ReporterAvatarUrl = r.ReporterUser.AvatarUrl,
+                Details = r.Details,
+                CreatedAt = r.CreatedAt,
+            })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            UserId = user.Id,
+            UserName = user.FullName ?? user.Email,
+            AvatarUrl = user.AvatarUrl,
+            TrustScore = user.TrustScore,
+            ReportsCount = reports.Count,
+            Reports = reports,
+        });
+    }
+
+    [HttpDelete("flagged-users/{userId}/dismiss")]
+    public async Task<IActionResult> DismissFlaggedUser(int userId)
+    {
+        var reports = await _context.UserReports
+            .Where(r => r.ReportedUserId == userId)
+            .ToListAsync();
+        _context.UserReports.RemoveRange(reports);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost("flagged-users/{userId}/ban")]
+    public async Task<IActionResult> BanUser(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound();
+
+        user.IsBanned = true;
+
+        var reports = await _context.UserReports
+            .Where(r => r.ReportedUserId == userId)
+            .ToListAsync();
+        _context.UserReports.RemoveRange(reports);
+
+        await _context.SaveChangesAsync();
+
+        await _notificationHub.Clients.User(userId.ToString())
+        .SendAsync("UserBanned");
+        return Ok();
     }
 }

@@ -28,7 +28,12 @@ export default function LoginForm() {
       });
 
       if (!res.ok) {
-        setError(activeTab === "login" ? "Invalid email or password." : "Email already in use.");
+        const data = await res.json();
+        if (data.message === "banned") {
+          setError("Your account has been banned. Please contact support.");
+        } else {
+          setError(activeTab === "login" ? "Invalid email or password." : "Email already in use.");
+        }
         return;
       }
 

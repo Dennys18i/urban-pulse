@@ -15,6 +15,7 @@
         public string? Skills { get; set; }
         public string? Tools { get; set; }
         public string? AvatarUrl { get; set; }
+        public bool IsBanned { get; set; } = false;
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
     }

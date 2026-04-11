@@ -12,6 +12,7 @@
         public List<string> Tools { get; set; } = new();
         public string Role { get; set; } = string.Empty;
         public bool IsVerified { get; set; }
+        public bool IsBanned { get; set; }
         public double TrustScore { get; set; }
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
