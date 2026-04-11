@@ -12,6 +12,11 @@
         public List<string> Tools { get; set; } = new();
         public string Role { get; set; } = string.Empty;
         public bool IsVerified { get; set; }
+        public bool IsBanned { get; set; }
+        public int TasksBanned { get; set; }
+        public int TasksPostsDeleted { get; set; }
+        public int TasksDuplicatesMerged { get; set; }
+        public int TasksDismissed { get; set; }
         public double TrustScore { get; set; }
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }

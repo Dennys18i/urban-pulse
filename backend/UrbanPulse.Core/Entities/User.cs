@@ -15,6 +15,12 @@
         public string? Skills { get; set; }
         public string? Tools { get; set; }
         public string? AvatarUrl { get; set; }
+        public int TasksBanned { get; set; } = 0;
+        public int TasksPostsDeleted { get; set; } = 0;
+        public int TasksDuplicatesMerged { get; set; } = 0;
+        public int TasksDismissed { get; set; } = 0;
+        public bool IsBanned { get; set; } = false;
+        public DateTime? BannedAt { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
     }

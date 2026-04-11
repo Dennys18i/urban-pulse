@@ -11,6 +11,10 @@ interface BannedUserCardProps {
   onUnban: (id: string) => void;
 }
 
+function getInitials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+}
+
 export default function BannedUserCard({ user, onUnban }: BannedUserCardProps) {
   const [showModal, setShowModal] = useState(false);
 
@@ -24,13 +28,13 @@ export default function BannedUserCard({ user, onUnban }: BannedUserCardProps) {
       <div className="w-full bg-secondary rounded-[20] p-5 flex flex-col gap-3">
         {/* Avatar + Name */}
         <div className="flex items-center gap-3">
-          <Image
-            src={user.avatar}
-            alt={user.name}
-            width={52}
-            height={52}
-            className="rounded-full object-cover"
-          />
+          <div className="w-13 h-13 rounded-full overflow-hidden bg-third flex items-center justify-center shrink-0">
+            {user.avatar ? (
+              <Image src={user.avatar} alt={user.name} width={52} height={52} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-white font-bold text-sm">{getInitials(user.name)}</span>
+            )}
+          </div>
           <span className="text-xl">{user.name}</span>
         </div>
 
@@ -38,12 +42,6 @@ export default function BannedUserCard({ user, onUnban }: BannedUserCardProps) {
         <p className="font-bold">
           Banned on:{" "}
           <span className="text-red-emergency font-normal">{user.bannedOn}</span>
-        </p>
-
-        {/* Reason */}
-        <p className="font-bold">
-          Reason:{" "}
-          <span className="text-red-emergency font-bold">{user.reason}</span>
         </p>
 
         {/* Unban button */}
@@ -57,7 +55,6 @@ export default function BannedUserCard({ user, onUnban }: BannedUserCardProps) {
         </div>
       </div>
 
-      {/* Unban Confirmation Modal */}
       <ConfirmModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

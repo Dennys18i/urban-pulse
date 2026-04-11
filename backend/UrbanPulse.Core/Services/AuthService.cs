@@ -46,6 +46,9 @@ public class AuthService : IAuthService
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return null;
 
+        if (user.IsBanned)
+            return new AuthResponseDto { IsBanned = true };
+
         return new AuthResponseDto
         {
             Token = _tokenService.GenerateToken(user),

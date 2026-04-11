@@ -1,75 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Ban } from "lucide-react";
 import UserReportCard from "@/components/admin/UserReportCard";
-import NumberOfReports from "@/components/admin/NumberOfReports";
 import CheckButton from "@/components/admin/CheckButton";
 import ResolveTaskModal from "@/components/ui/ResolveTaskModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 
-// ── Mock data — înlocuiește cu fetch-uri din API ──
-interface Report {
-  id: string;
+const API = "http://localhost:5248";
+
+interface UserReport {
+  id: number;
   reporterName: string;
-  reporterAvatar: string;
-  date: string;
-  time: string;
-  title: string;
-  description: string;
+  reporterAvatarUrl: string | null;
+  details: string;
+  createdAt: string;
 }
 
-const mockUserData = {
-  name: "Johann Strauss",
-  avatar: "/profile.png",
-  trustScore: 57,
-  starRating: 3,
-  reports: [
-    {
-      id: "1",
-      reporterName: "Tyler Lockwood",
-      reporterAvatar: "/profile.png",
-      date: "15.02.2026",
-      time: "7:20",
-      title: "Harassment and abuse",
-      description:
-        "This user has been repeatedly sending me offensive messages and using abusive language towards me.",
-    },
-    {
-      id: "2",
-      reporterName: "Anabelle Bonk",
-      reporterAvatar: "/profile.png",
-      date: "15.02.2026",
-      time: "7:20",
-      title: "Spamming",
-      description: "He continues to send messages out of nowhere. Every day!",
-    },
-    {
-      id: "3",
-      reporterName: "Anabelle Bonk",
-      reporterAvatar: "/profile.png",
-      date: "15.02.2026",
-      time: "7:20",
-      title: "Abuse",
-      description:
-        "I received messages from this user constantly and it really bothered me. I also blocked him, but please do something.",
-    },
-  ] as Report[],
-};
-// ──────────────────────────────────────────────────────────
+interface FlaggedUserDetail {
+  userId: number;
+  userName: string;
+  avatarUrl: string | null;
+  trustScore: number;
+  reportsCount: number;
+  reports: UserReport[];
+}
+
+function getInitials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  return {
+    date: date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    time: `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
+  };
+}
 
 export default function FlaggedUserDetailPage() {
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
+  const [userData, setUserData] = useState<FlaggedUserDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [resolved, setResolved] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [showBanModal, setShowBanModal] = useState(false);
-  const [banReason, setBanReason] = useState("");
 
-  const handleDismiss = () => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${API}/api/admin/flagged-users/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUserData(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  const handleDismiss = async () => {
+    const token = localStorage.getItem("token");
+    await fetch(`${API}/api/admin/flagged-users/${id}/dismiss`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     setShowResolveModal(false);
+    setResolved(true);
+    setTimeout(() => router.back(), 800);
+  };
+
+  const handleBanUser = async () => {
+    const token = localStorage.getItem("token");
+    await fetch(`${API}/api/admin/flagged-users/${id}/ban`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setShowBanModal(false);
     setResolved(true);
     setTimeout(() => router.back(), 800);
   };
@@ -79,15 +90,10 @@ export default function FlaggedUserDetailPage() {
     setShowBanModal(true);
   };
 
-  const handleBanUser = (reason: string) => {
-    setShowBanModal(false);
-    setResolved(true);
-    console.log("User banned. Reason:", reason);
-    setTimeout(() => router.back(), 800);
-  };
+  if (loading) return <ThreeColumnLayoutAdmin><p className="text-white/40 text-center mt-20">Loading...</p></ThreeColumnLayoutAdmin>;
+  if (!userData) return <ThreeColumnLayoutAdmin><p className="text-white/40 text-center mt-20">User not found.</p></ThreeColumnLayoutAdmin>;
 
-  const fullStars = mockUserData.starRating;
-  const emptyStars = 5 - fullStars;
+  const nameParts = userData.userName.split(" ");
 
   return (
     <ThreeColumnLayoutAdmin>
@@ -98,91 +104,64 @@ export default function FlaggedUserDetailPage() {
             onClick={() => router.back()}
             className="cursor-pointer hover:scale-105 active:scale-95 z-10 lg:hidden"
           >
-            <Image
-              src="/undo.svg"
-              alt="go_back"
-              width={69}
-              height={49}
-              className="-ml-2"
-            />
+            <Image src="/undo.svg" alt="go_back" width={69} height={49} className="-ml-2" />
           </button>
           <div className="hidden lg:block" />
-
-          <CheckButton onClick={() => setShowResolveModal(true)} />
+          {!resolved && <CheckButton onClick={() => setShowResolveModal(true)} />}
+          {resolved && <span className="text-green-light font-bold text-sm">✓ Resolved</span>}
         </div>
 
         {/* User info */}
         <section className="w-full flex justify-around items-center px-2">
-          <div className="w-36 h-36 rounded-full overflow-hidden shrink-0">
-            <Image
-              src={mockUserData.avatar}
-              alt={mockUserData.name}
-              width={144}
-              height={144}
-              className="object-cover w-full h-full"
-            />
+          <div className="w-36 h-36 rounded-full overflow-hidden bg-secondary flex items-center justify-center shrink-0">
+            {userData.avatarUrl ? (
+              <Image src={userData.avatarUrl} alt={userData.userName} width={144} height={144} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-white text-4xl font-bold">{getInitials(userData.userName)}</span>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">
             <h1 className="text-2xl font-bold font-montagu text-center leading-tight">
-              {mockUserData.name.includes(" ") ? (
-                <>
-                  {mockUserData.name.split(" ")[0]}
-                  <br />
-                  {mockUserData.name.split(" ").slice(1).join(" ")}
-                </>
+              {nameParts.length > 1 ? (
+                <>{nameParts[0]}<br />{nameParts.slice(1).join(" ")}</>
               ) : (
-                mockUserData.name
+                nameParts[0]
               )}
             </h1>
 
-            <div className="flex justify-center items-center rounded-full px-3 py-1.5 h-8 bg-linear-to-b from-[#FFFADC]/50 to-[#FFF197]/50 shadow-[0px_11.3915px_22.3363px_rgba(255,227,42,0.19),inset_0px_-2px_1px_rgba(255,241,151,0.4)] backdrop-blur-[2px]">
-              {Array.from({ length: fullStars }).map((_, i) => (
-                <svg
-                  key={`full-${i}`}
-                  className="w-5 h-5 text-yellow-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z" />
-                </svg>
-              ))}
-              {Array.from({ length: emptyStars }).map((_, i) => (
-                <svg
-                  key={`empty-${i}`}
-                  className="w-5 h-5 text-yellow-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.368-2.447a1 1 0 00-1.175 0l-3.368 2.447c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L4.053 9.384c-.783-.57-.38-1.81.588-1.81h4.161a1 1 0 00.951-.69l1.286-3.957z" />
-                </svg>
-              ))}
+            {/* Trust score */}
+            <div className="flex justify-center items-center rounded-full px-4 py-1 bg-linear-to-b from-[#FFFADC]/50 to-[#FFF197]/50 shadow-[0px_11.3915px_22.3363px_rgba(255,227,42,0.19),inset_0px_-2px_1px_rgba(255,241,151,0.4)] backdrop-blur-[2px] border border-yellow-primary">
+              <p className="font-montagu font-medium text-xs text-yellow-primary leading-3">Trust<br />score</p>
+              <div className="h-6 w-1 border-r border-yellow-primary mx-2"></div>
+              <p className="font-montagu text-xl text-yellow-primary font-bold text-center ml-3">{Math.round(userData.trustScore)}%</p>
             </div>
           </div>
         </section>
 
         {/* Reports count */}
-        <NumberOfReports />
+        <div className="flex items-center gap-2 px-2 mt-8">
+          <span className="text-red-emergency text-xl">⚠ Number of reports: {userData.reportsCount}</span>
+        </div>
 
         {/* Reports list */}
         <div className="flex flex-col gap-4">
-          {mockUserData.reports.map((report) => (
-            <UserReportCard
-              key={report.id}
-              reporterName={report.reporterName}
-              reporterAvatar={report.reporterAvatar}
-              date={report.date}
-              time={report.time}
-              title={report.title}
-              description={report.description}
-            />
-          ))}
+          {userData.reports.map((report) => {
+            const { date, time } = formatDate(report.createdAt);
+            return (
+              <UserReportCard
+                key={report.id}
+                reporterName={report.reporterName}
+                reporterAvatar={report.reporterAvatarUrl ?? "/profile.png"}
+                date={date}
+                time={time}
+                description={report.details}
+              />
+            );
+          })}
         </div>
       </div>
 
-      {/* Resolve Task Modal */}
       <ResolveTaskModal
         isOpen={showResolveModal}
         onClose={() => setShowResolveModal(false)}
@@ -192,30 +171,14 @@ export default function FlaggedUserDetailPage() {
         redButtonText="Ban user"
       />
 
-      {/* Ban User Modal */}
       <ConfirmModal
         isOpen={showBanModal}
         onClose={() => setShowBanModal(false)}
-        onConfirm={() => handleBanUser(banReason)}
+        onConfirm={handleBanUser}
         icon={<Ban />}
         title="Ban user"
         boldText="ban this user"
-      >
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="reason" className="text-white font-bold">
-            Reason
-          </label>
-
-          <input
-            type="text"
-            id="reason"
-            value={banReason}
-            onChange={(e) => setBanReason(e.target.value)}
-            placeholder="e.g. Harassment and abuse: "
-            className="w-full bg-input border border-red-emergency rounded-[10] px-3 py-2 text-white text-sm outline-none"
-          />
-        </div>
-      </ConfirmModal>
+      />
     </ThreeColumnLayoutAdmin>
   );
 }
