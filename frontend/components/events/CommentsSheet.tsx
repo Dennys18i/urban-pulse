@@ -46,6 +46,11 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
   const { connection } = useSignalR();
 
   useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
     const update = () => {
       if (window.innerWidth >= 500) {
         const feed = document.getElementById("feed-scroll");
@@ -123,15 +128,15 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
       >
         
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <h2 className="text-white font-bold text-lg">Comments</h2>
-          <button onClick={onClose}>
-            <X size={22} className="text-white/50" />
-          </button>
+        <div className="px-5 pt-5 pb-0">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-white font-bold text-xl">Comments</h2>
+          </div>
+          <div className="border-t-2 border-white/40 h-8" />
         </div>
 
         {/* Comments list */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto px-5 pb-5 flex flex-col gap-5">
           {loading && (
             <p className="text-white/30 text-sm text-center mt-4">Loading...</p>
           )}
@@ -144,7 +149,7 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
             <div key={comment.id} className="flex gap-3 items-start">
               {/* Avatar */}
               <div
-                className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden cursor-pointer"
+                className="w-10 h-10 rounded-full bg-[#2e2e2e] flex items-center justify-center shrink-0 overflow-hidden cursor-pointer"
                 onClick={() => router.push(`/users/${comment.createdByUserId}`)}
               >
                 {comment.avatarUrl ? (
@@ -154,19 +159,19 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
                 )}
               </div>
               {/* Content */}
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <span
-                    className="text-white text-sm font-semibold cursor-pointer hover:underline"
+                    className="text-white text-sm font-bold cursor-pointer hover:underline"
                     onClick={() => router.push(`/users/${comment.createdByUserId}`)}
                   >
                     {comment.fullName ?? comment.createdByEmail?.split("@")[0]}
                   </span>
-                  <span className="text-white/30 text-xs">
+                  <span className="text-white/40 text-xs">
                     {timeAgo(comment.createdAt)}
                   </span>
                 </div>
-                <p className="text-white/80 text-sm mt-0.5">{comment.text}</p>
+                <p className="text-white/70 text-sm leading-snug">{comment.text}</p>
               </div>
             </div>
           ))}
