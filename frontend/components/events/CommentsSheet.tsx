@@ -12,6 +12,7 @@ interface Comment {
   createdByUserId: number;
   createdAt: string;
   eventId: number;
+  avatarUrl?: string | null;
 }
 
 interface CommentsSheetProps {
@@ -119,10 +120,12 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3 items-start">
               {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-semibold text-white/60">
-                  {getInitials(comment)}
-                </span>
+              <div className="w-9 h-9 rounded-full bg-[#2e2e2e] border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {comment.avatarUrl ? (
+                  <img src={comment.avatarUrl} alt={comment.fullName ?? comment.createdByEmail} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-semibold text-white/60">{getInitials(comment)}</span>
+                )}
               </div>
               {/* Content */}
               <div className="flex flex-col">

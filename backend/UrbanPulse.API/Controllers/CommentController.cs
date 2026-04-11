@@ -50,7 +50,8 @@ public class CommentController : ControllerBase
             FullName = c.User.FullName,
             CreatedByUserId = c.UserId,
             CreatedAt = c.CreatedAt,
-            EventId = c.EventId
+            EventId = c.EventId,
+            AvatarUrl = c.User.AvatarUrl,
         });
         return Ok(result);
     }
@@ -78,7 +79,8 @@ public class CommentController : ControllerBase
             FullName = added.User.FullName,
             CreatedByUserId = added.UserId,
             CreatedAt = added.CreatedAt,
-            EventId = added.EventId
+            EventId = added.EventId,
+            AvatarUrl = added.User.AvatarUrl,
         };
 
         await _hubContext.Clients.All.SendAsync("NewComment", response);
