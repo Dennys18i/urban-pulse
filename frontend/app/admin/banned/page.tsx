@@ -30,7 +30,7 @@ export default function BannedUsersPage() {
     <ThreeColumnLayoutAdmin>
     <div className="w-full flex flex-col gap-5 animate-fade-up">
       {/* Header */}
-      <div className="flex items-center relative">
+      <div className="flex items-center relative lg:hidden">
         <GoBackButton />
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <h1 className="text-white font-bold text-xl">Banned users</h1>
