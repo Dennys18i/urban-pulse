@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using UrbanPulse.Core.DTOs;
 using UrbanPulse.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace UrbanPulse.API.Controllers;
 
@@ -19,8 +20,8 @@ public class AdminController : ControllerBase
     private readonly IUserRepository _userRepository;
     private readonly AppDbContext _context;
     private readonly IHubContext<NotificationHub> _notificationHub;
-    private readonly IEventService _eventService;
     private readonly IHubContext<EventHub> _eventHub;
+    private readonly IEventService _eventService;
 
     public AdminController(
         IAdminStatsRepository adminStatsRepository,
@@ -38,6 +39,13 @@ public class AdminController : ControllerBase
         _notificationHub = notificationHub;
         _eventHub = eventHub;
         _eventService = eventService;
+    }
+
+    private async Task<UrbanPulse.Core.Entities.User?> GetCurrentAdminAsync()
+    {
+        var adminIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(adminIdStr, out var adminId)) return null;
+        return await _context.Users.FindAsync(adminId);
     }
 
     [HttpGet("stats")]
@@ -62,6 +70,10 @@ public class AdminController : ControllerBase
 
         suspect.IsDismissed = true;
         await _duplicateSuspectRepository.SaveChangesAsync();
+
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksDismissed++; await _context.SaveChangesAsync(); }
+
         return Ok();
     }
 
@@ -82,6 +94,9 @@ public class AdminController : ControllerBase
 
         suspect.IsDismissed = true;
         await _duplicateSuspectRepository.SaveChangesAsync();
+
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksDuplicatesMerged++; await _context.SaveChangesAsync(); }
 
         return Ok(new { message = "Duplicate merged successfully." });
     }
@@ -144,6 +159,10 @@ public class AdminController : ControllerBase
             .ToListAsync();
         _context.UserReports.RemoveRange(reports);
         await _context.SaveChangesAsync();
+
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksDismissed++; await _context.SaveChangesAsync(); }
+
         return Ok();
     }
 
@@ -159,8 +178,10 @@ public class AdminController : ControllerBase
             .Where(r => r.ReportedUserId == userId)
             .ToListAsync();
         _context.UserReports.RemoveRange(reports);
-
         await _context.SaveChangesAsync();
+
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksBanned++; await _context.SaveChangesAsync(); }
 
         await _notificationHub.Clients.User(userId.ToString())
             .SendAsync("UserBanned");
@@ -284,6 +305,9 @@ public class AdminController : ControllerBase
         await _eventService.DeactivateAsync(eventId);
         await _eventHub.Clients.All.SendAsync("EventDeactivated", eventId);
 
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksPostsDeleted++; await _context.SaveChangesAsync(); }
+
         return Ok();
     }
 
@@ -295,6 +319,10 @@ public class AdminController : ControllerBase
             .ToListAsync();
         _context.Reports.RemoveRange(reports);
         await _context.SaveChangesAsync();
+
+        var admin = await GetCurrentAdminAsync();
+        if (admin != null) { admin.TasksDismissed++; await _context.SaveChangesAsync(); }
+
         return Ok();
     }
 }
