@@ -1,73 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EventCard from "@/components/events/EventCard";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import { Event } from "@/types/Event";
 
 type PetTab = "LostPet" | "FoundPet";
 
-const MOCK_POSTS: Event[] = [
-  {
-    id: 1,
-    type: "LostPet",
-    description: "Please help me find <strong>Bam</strong>. He has brown eyes, he\u2019s short and very scared!",
-    latitude: 0,
-    longitude: 0,
-    tags: [],
-    imageUrl: "https://picsum.photos/seed/bam-dog/600/400",
-    createdByEmail: "ian.kook@example.com",
-    createdByFullName: "Ian Kook",
-    createdByAvatarUrl: "https://picsum.photos/seed/iankook/100/100",
-    createdByUserId: 1,
-    isVerifiedUser: true,
-    createdAt: "2026-03-02T08:33:00",
-    isActive: true,
-  },
-  {
-    id: 2,
-    type: "FoundPet",
-    description: "Heyy I found this cutie right on my street. The owner should contact me so we can discuss",
-    latitude: 0,
-    longitude: 0,
-    tags: [],
-    imageUrl: "https://picsum.photos/seed/moore-dog/600/400",
-    createdByEmail: "moore.b@example.com",
-    createdByFullName: "Moore B",
-    createdByAvatarUrl: "https://picsum.photos/seed/moore/100/100",
-    createdByUserId: 2,
-    isVerifiedUser: true,
-    createdAt: "2026-03-02T08:33:00",
-    isActive: true,
-  },
-  {
-    id: 3,
-    type: "LostPet",
-    description: "Has anyone seen <strong>Mochi</strong>? She\u2019s a white cat with blue eyes, very shy.",
-    latitude: 0,
-    longitude: 0,
-    tags: [],
-    imageUrl: "https://picsum.photos/seed/mochi-cat/600/400",
-    createdByEmail: "clara.rumpel@example.com",
-    createdByFullName: "Clara Rumpel",
-    createdByAvatarUrl: "https://picsum.photos/seed/clara/100/100",
-    createdByUserId: 3,
-    isVerifiedUser: false,
-    createdAt: "2026-03-01T14:12:00",
-    isActive: true,
-  },
-];
+const API = "http://localhost:5248";
 
 export default function PetsPostsPage() {
   const [activeTab, setActiveTab] = useState<PetTab>("LostPet");
+  const [posts, setPosts] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = MOCK_POSTS.filter((p) => p.type === activeTab);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const [lostRes, foundRes] = await Promise.all([
+          fetch(`${API}/api/Event/type/LostPet`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API}/api/Event/type/FoundPet`, { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+        const lostPosts: Event[] = lostRes.ok ? await lostRes.json() : [];
+        const foundPosts: Event[] = foundRes.ok ? await foundRes.json() : [];
+        setPosts([...lostPosts, ...foundPosts]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const typeToNumber: Record<PetTab, number> = { LostPet: 4, FoundPet: 5 };
+  const filtered = posts.filter((p) => Number(p.type) === typeToNumber[activeTab]);
 
   return (
     <ThreeColumnLayout>
       <div className="flex flex-col gap-5 py-2">
-
-        {/* Tabs */}
         <div className="flex gap-3">
           <button
             onClick={() => setActiveTab("LostPet")}
@@ -91,13 +62,17 @@ export default function PetsPostsPage() {
           </button>
         </div>
 
-        {/* Posts */}
-        <div className="flex flex-col">
-          {filtered.map((post) => (
-            <EventCard key={post.id} event={post} />
-          ))}
-        </div>
-
+        {loading ? (
+          <p className="text-white/40 text-sm text-center mt-10">Loading...</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-white/40 text-sm text-center mt-10">No posts yet.</p>
+        ) : (
+          <div className="flex flex-col">
+            {filtered.map((post) => (
+              <EventCard key={post.id} event={post} />
+            ))}
+          </div>
+        )}
       </div>
     </ThreeColumnLayout>
   );

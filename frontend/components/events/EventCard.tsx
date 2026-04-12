@@ -53,7 +53,9 @@ export default function EventCard({ event, isMyPost, onDelete, flagCount, onView
   const [isCompleted, setIsCompleted] = useState(event.isCompleted ?? false);
   const { connection } = useSignalR();
 
-  const typeMap: Record<number, EventType> = { 0: "General", 1: "Emergency", 2: "Skill", 3: "Lend" };
+  const typeMap: Record<number, EventType> = {
+    0: "General", 1: "Emergency", 2: "Skill", 3: "Lend", 4: "LostPet", 5: "FoundPet"
+  };
   const mappedType = typeof event.type === "number" ? typeMap[event.type] : (event.type as EventType);
   const isOwner = isMyPost || (currentUserId !== null && currentUserId === event.createdByUserId);
   const displayName = event.createdByFullName ?? event.createdByEmail?.split("@")[0] ?? "Unknown";
