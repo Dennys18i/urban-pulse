@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { PawPrint } from "lucide-react";
 import EventCard from "@/components/events/EventCard";
 import EventFilters from "@/components/dashboard/EventFilters";
 import DashboardBanner from "@/components/dashboard/DashboardBanner";
@@ -12,6 +14,7 @@ import { EVENT_TAG_STYLES } from "@/lib/constants";
 import { useSignalR } from "@/context/SignalRContext";
 import { useRadius } from "@/context/RadiusContext";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
+import { useUser } from "@/context/UserContext";
 import UrbanTitle from "@/components/ui/UrbanTitle";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
@@ -78,6 +81,22 @@ function SafetyBanner({ onClick }: { onClick: () => void }) {
   );
 }
 
+function PawPrintFab() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
+  return createPortal(
+    <Link
+      href="/pets"
+      className="fixed bottom-22 right-6 z-50 w-14 h-14 rounded-full bg-green-light flex items-center justify-center shadow-lg hover:scale-105 transition-transform lg:hidden"
+    >
+      <PawPrint size={26} strokeWidth={2} fill="black" className="text-black" />
+    </Link>,
+    document.body
+  );
+}
+
 export default function DashboardPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +106,7 @@ export default function DashboardPage() {
   const { connection } = useSignalR();
   const { radiusKm } = useRadius();
   const { isSevereWeather } = useSevereWeather();
+  const { isAdmin } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetEventId = searchParams.get("eventId");
@@ -168,6 +188,8 @@ export default function DashboardPage() {
 
   return (
     <ThreeColumnLayout>
+      {!isAdmin && <PawPrintFab />}
+
       {/* Mobile: portal în document.body — fixed cu top dinamic bazat pe scroll */}
       {isSevereWeather && (
         <MobileSafetyPortal onClick={() => router.push("/severe-chat")} />
