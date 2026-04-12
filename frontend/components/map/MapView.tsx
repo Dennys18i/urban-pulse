@@ -14,6 +14,7 @@ const API = "http://localhost:5248";
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 type FilterMode = "disponibili" | "pot-ajuta";
+type MarkerFilterType = "skills" | "tools" | "all";
 
 interface UserProfile {
   id: number;
@@ -55,6 +56,11 @@ interface EventMarker {
   type: "skill" | "lend" | "emergency";
 }
 
+interface SelectedUser {
+  user: UserProfile;
+  filterType: MarkerFilterType;
+}
+
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -92,7 +98,7 @@ function LocationModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void }) {
+function ProfileCard({ user, onClose, filterType }: { user: UserProfile; onClose: () => void; filterType: MarkerFilterType }) {
   const router = useRouter();
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
@@ -138,13 +144,13 @@ function ProfileCard({ user, onClose }: { user: UserProfile; onClose: () => void
           </div>
         </div>
         {user.bio && <div className="pc-section bio-section"><p className="pc-bio">{user.bio}</p></div>}
-        {user.skills.length > 0 && (
+        {filterType !== "tools" && user.skills.length > 0 && (
           <div className="pc-section skills-section">
             <h3 className="pc-section-title skills-title">★ Skills</h3>
             <div className="pc-grid">{user.skills.map((s, i) => <div key={i} className="pc-item"><span className="pc-dot skill-dot" />{s}</div>)}</div>
           </div>
         )}
-        {user.tools.length > 0 && (
+        {filterType !== "skills" && user.tools.length > 0 && (
           <div className="pc-section tools-section">
             <h3 className="pc-section-title tools-title">⚙ Tools & Resources</h3>
             {user.tools.map((t, i) => <div key={i} className="pc-item"><span className="pc-dot tool-dot" />{t}</div>)}
@@ -244,7 +250,7 @@ export default function MapView() {
   const [eventMarkersPotAjuta, setEventMarkersPotAjuta] = useState<EventMarker[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingEvents, setLoadingEvents] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -342,7 +348,11 @@ export default function MapView() {
     fetchEvents();
   }, [mounted]);
 
-  const handleUserClick = useCallback((u: UserProfile) => { setSelectedUser(u); setSelectedEvent(null); }, []);
+  const handleUserClick = useCallback((user: UserProfile, filterType: MarkerFilterType) => {
+    setSelectedUser({ user, filterType });
+    setSelectedEvent(null);
+  }, []);
+
   const handleEventClick = useCallback((e: EventItem) => { setSelectedEvent(e); setSelectedUser(null); }, []);
 
   const q = searchQuery.toLowerCase().trim();
@@ -378,10 +388,10 @@ export default function MapView() {
         const seed = user.id * 9301 + 49297;
         const [dLng, dLat] = seededGeoOffset(seed);
 
-        const addCircleMarker = (color: string, extraDLng = 0) => {
+        const addCircleMarker = (color: string, filterType: MarkerFilterType, extraDLng = 0) => {
           const el = document.createElement("div");
           el.style.cssText = `width:28px !important;height:28px !important;min-width:28px !important;min-height:28px !important;max-width:28px !important;max-height:28px !important;border-radius:50%;background:${color}40;border:2px solid ${color};cursor:pointer;box-sizing:border-box;`;
-          el.addEventListener("click", (e) => { e.stopPropagation(); handleUserClick(user); });
+          el.addEventListener("click", (e) => { e.stopPropagation(); handleUserClick(user, filterType); });
           const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
             .setLngLat([lng + dLng + extraDLng, lat + dLat])
             .addTo(map);
@@ -389,10 +399,11 @@ export default function MapView() {
         };
 
         if (hasSkills && hasTools) {
-          addCircleMarker("#FFD700", -0.001);
-          addCircleMarker("#3B82F6", +0.001);
+          addCircleMarker("#FF8C00", "all", 0);
+        } else if (hasSkills) {
+          addCircleMarker("#FFD700", "skills", 0);
         } else {
-          addCircleMarker(hasSkills ? "#FFD700" : "#3B82F6");
+          addCircleMarker("#3B82F6", "tools", 0);
         }
       });
 
@@ -405,7 +416,7 @@ export default function MapView() {
         if (type === "emergency") {
           el.style.cssText = `width:30px !important;height:30px !important;min-width:30px !important;min-height:30px !important;max-width:30px !important;max-height:30px !important;border-radius:50%;background:#EF4444;border:2px solid #EF4444;box-shadow:0 0 12px rgba(239,68,68,0.8),0 0 24px rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;box-sizing:border-box;`;
           el.innerHTML = "🚨";
-          el.addEventListener("click", (e) => { e.stopPropagation(); handleEventClick(event); }); // adaugă asta
+          el.addEventListener("click", (e) => { e.stopPropagation(); handleEventClick(event); });
           const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
             .setLngLat([event.longitude, event.latitude])
             .addTo(map);
@@ -458,6 +469,7 @@ export default function MapView() {
         <div className="map-legend">
           <div className="legend-item"><span className="legend-dot skill-dot" />Skills</div>
           <div className="legend-item"><span className="legend-dot tool-dot" />Tools</div>
+          <div className="legend-item"><span className="legend-dot" style={{ background: "#FF8C00" }} />Skills & Tools</div>
           <div className="legend-item"><span className="legend-dot emerg-dot" />Emergency</div>
         </div>
 
@@ -488,7 +500,13 @@ export default function MapView() {
       </div>
 
       {showLocationModal && <LocationModal onClose={() => setShowLocationModal(false)} />}
-      {selectedUser && <ProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />}
+      {selectedUser && (
+        <ProfileCard
+          user={selectedUser.user}
+          filterType={selectedUser.filterType}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
       {selectedEvent && <EventCard event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </>
   );

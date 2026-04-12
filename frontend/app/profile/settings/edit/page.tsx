@@ -11,6 +11,7 @@ export default function EditProfile() {
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [tools, setTools] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -25,6 +26,7 @@ export default function EditProfile() {
         setBio(data.bio ?? "");
         setSkills(data.skills ?? []);
         setTools(data.tools ?? []);
+        setAvatarUrl(data.avatarUrl ?? null);
       });
   }, []);
 
@@ -58,12 +60,21 @@ export default function EditProfile() {
   return (
     <div className="w-full h-full flex flex-col items-center gap-5 animate-fade-up">
       <div className="w-full flex justify-center items-center">
-        <Image
-          src="/profile.png"
-          width={93}
-          height={91}
-          alt="profile_picture"
-        />
+        <div className="w-24 h-24 rounded-full overflow-hidden bg-secondary flex items-center justify-center border-2 border-white/10">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              width={96}
+              height={96}
+              alt="profile_picture"
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span className="text-white font-bold text-2xl">
+              {fullName ? fullName.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) : "UP"}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="w-full flex items-center justify-between px-1">
