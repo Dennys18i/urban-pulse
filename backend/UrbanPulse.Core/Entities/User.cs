@@ -11,6 +11,8 @@
         public string? Address { get; set; }
         public string? Bio { get; set; }
         public bool IsVerified { get; set; } = false;
+        public int HelpfulCount { get; set; } = 0;
+        public int NotHelpfulCount { get; set; } = 0;
         public double TrustScore { get; set; } = 0;
         public string? Skills { get; set; }
         public string? Tools { get; set; }

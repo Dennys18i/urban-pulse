@@ -156,28 +156,6 @@ namespace UrbanPulse.API.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             await _eventService.CompleteEventAsync(id, userId);
-
-            var conversations = await _conversationRepository.GetByEventIdAsync(id);
-            foreach (var conv in conversations)
-            {
-                var message = new Message
-                {
-                    Text = "Did this person actually help you?",
-                    SenderId = userId,
-                    ConversationId = conv.Id,
-                    MessageType = "rating_check",
-                };
-                await _conversationRepository.AddMessageAsync(message);
-                await _hubContext.Clients.All.SendAsync($"NewMessage_{conv.Id}", new
-                {
-                    id = message.Id,
-                    text = message.Text,
-                    senderId = userId,
-                    createdAt = message.CreatedAt,
-                    isRating = true,
-                });
-            }
-
             return Ok();
         }
 

@@ -62,11 +62,6 @@ public class ConversationRepository : IConversationRepository
             .OrderBy(m => m.CreatedAt)
             .ToListAsync();
 
-    public async Task<List<Conversation>> GetByEventIdAsync(int eventId)
-        => await _db.Conversations
-            .Where(c => c.EventId == eventId)
-            .ToListAsync();
-
     public async Task MarkAsReadAsync(int conversationId, int userId)
     {
         var unread = await _db.Messages

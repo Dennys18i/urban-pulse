@@ -5,6 +5,7 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UrbanPulse.Core.DTOs;
 using UrbanPulse.Core.DTOs.User;
 using UrbanPulse.Core.Interfaces;
 
@@ -132,6 +133,15 @@ public class UserController : ControllerBase
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         await _userService.DeleteAccountAsync(userId);
+        return Ok();
+    }
+
+    [HttpPost("{userId}/rate")]
+    public async Task<IActionResult> RateUser(int userId, [FromBody] RateUserDto dto)
+    {
+        var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        if (currentUserId == userId) return BadRequest(new { message = "You cannot rate yourself." });
+        await _userService.RateUserAsync(currentUserId, userId, dto.Helpful);
         return Ok();
     }
 

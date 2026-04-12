@@ -12,6 +12,7 @@ namespace UrbanPulse.Core.Interfaces
         Task<List<UserProfileDto>> GetUsersWithSkillsAsync();
         Task<List<UserProfileDto>> GetUsersWithToolsAsync();
         Task<List<UserProfileDto>> GetAllUsersAsync();
+        Task RateUserAsync(int raterId, int targetUserId, bool helpful);
         Task<List<UserProfileDto>> SearchUsersAsync(string query);
     }
 }

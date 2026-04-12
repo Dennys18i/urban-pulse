@@ -71,10 +71,7 @@ function RateForm() {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        helpful,
-        skills: Array.from(checkedSkills),
-      }),
+      body: JSON.stringify({ helpful }),
     }).catch(() => {});
 
     setSubmitted(true);

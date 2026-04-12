@@ -73,7 +73,6 @@ public class UserService : IUserService
         user.UpdatedAt = DateTime.UtcNow;
 
         await _userRepository.UpdateAsync(user);
-
         await _duplicateDetectionService.DetectAndSaveAsync(userId);
 
         return MapToDto(user);
@@ -97,6 +96,22 @@ public class UserService : IUserService
         await _userRepository.DeleteAsync(user);
     }
 
+    public async Task RateUserAsync(int raterId, int targetUserId, bool helpful)
+    {
+        var user = await _userRepository.GetByIdAsync(targetUserId);
+        if (user == null || raterId == targetUserId) return;
+
+        if (helpful) user.HelpfulCount++;
+        else user.NotHelpfulCount++;
+
+        var total = user.HelpfulCount + user.NotHelpfulCount;
+        var score = total > 0 ? (double)user.HelpfulCount / total * 100 : 0;
+        user.TrustScore = user.HelpfulCount >= 3 && score >= 75 ? score : 0;
+        user.IsVerified = user.TrustScore >= 75;
+
+        await _userRepository.UpdateAsync(user);
+    }
+
     private static UserProfileDto MapToDto(Core.Entities.User user) => new()
     {
         Id = user.Id,
@@ -114,7 +129,13 @@ public class UserService : IUserService
             : user.Tools.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList(),
         Role = user.Role,
         IsVerified = user.IsVerified,
-        TrustScore = user.TrustScore,
+        TrustScore = user.HelpfulCount >= 3
+            ? (user.HelpfulCount + user.NotHelpfulCount > 0
+                ? ((double)user.HelpfulCount / (user.HelpfulCount + user.NotHelpfulCount) * 100) >= 75
+                    ? (double)user.HelpfulCount / (user.HelpfulCount + user.NotHelpfulCount) * 100
+                    : 0
+                : 0)
+            : 0,
         IsBanned = user.IsBanned,
         TasksBanned = user.TasksBanned,
         TasksPostsDeleted = user.TasksPostsDeleted,

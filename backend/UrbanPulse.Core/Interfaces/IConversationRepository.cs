@@ -10,6 +10,5 @@ public interface IConversationRepository
     Task<Conversation> CreateAsync(Conversation conversation);
     Task<Message> AddMessageAsync(Message message);
     Task<List<Message>> GetMessagesAsync(int conversationId);
-    Task<List<Conversation>> GetByEventIdAsync(int eventId);
     Task MarkAsReadAsync(int conversationId, int userId);
 }
