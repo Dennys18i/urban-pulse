@@ -38,7 +38,7 @@ export default function PetsPage() {
             Let&apos;s bring them home together.
           </p>
           <Link
-            href="/pets/add"
+            href="/pets/addPost"
             className="bg-green-light text-black font-bold text-base px-12 py-3 rounded-full hover:opacity-90 transition-opacity active:scale-95"
           >
             Add post
