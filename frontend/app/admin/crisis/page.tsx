@@ -1,16 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Plus, AlertTriangle, ShieldCheck, ShieldOff } from "lucide-react";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 import { useCrisisMode } from "@/context/CrisisModeContext";
 import { DEFAULT_INCIDENT_TYPES } from "@/lib/constants";
+import { Event, EventType } from "@/types/Event";
+import EventCard from "@/components/events/EventCard";
+
+const API = "http://localhost:5248";
+
+const INCIDENT_KEYS = new Set(DEFAULT_INCIDENT_TYPES.map((t) => t.key));
 
 export default function AdminCrisisPage() {
   const { isCrisisActive, setIsCrisisActive } = useCrisisMode();
 
   const [incidentTypes, setIncidentTypes] = useState(DEFAULT_INCIDENT_TYPES);
   const [newTypeLabel, setNewTypeLabel] = useState("");
+
+  const [incidentEvents, setIncidentEvents] = useState<Event[]>([]);
+  const [verifiedIds, setVerifiedIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${API}/api/event`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((data: Event[]) => {
+        const typeMap: Record<number, EventType> = {
+          0: "General", 1: "Emergency", 2: "Skill", 3: "Lend", 4: "LostPet", 5: "FoundPet",
+        };
+        const emergencyIncidents = data.filter((e) => {
+          const t = typeof e.type === "number" ? typeMap[e.type] : e.type;
+          return t === "Emergency" && Array.isArray(e.tags) && e.tags.some((tag) => INCIDENT_KEYS.has(tag));
+        });
+        setIncidentEvents(emergencyIncidents);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleAddType = () => {
     const trimmed = newTypeLabel.trim();
@@ -23,6 +49,12 @@ export default function AdminCrisisPage() {
 
   const handleRemoveType = (key: string) => {
     setIncidentTypes((prev) => prev.filter((t) => t.key !== key));
+  };
+
+  const handleVerifyAndActivate = (eventId: number) => {
+    setVerifiedIds((prev) => new Set(prev).add(eventId));
+    setIsCrisisActive(true);
+    // TODO: colleague connects: PUT /api/event/{eventId}/admin-verify
   };
 
   return (
@@ -65,6 +97,39 @@ export default function AdminCrisisPage() {
           </button>
         </div>
 
+        {/* Emergency Incident Reports */}
+        <div className="bg-secondary rounded-3xl p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={20} className="text-red-emergency" />
+            <h2 className="text-white font-bold text-xl font-montagu uppercase">Incident Reports</h2>
+            {incidentEvents.length > 0 && (
+              <span className="ml-auto bg-red-emergency/20 text-red-emergency text-xs font-bold px-2.5 py-1 rounded-full">
+                {incidentEvents.length}
+              </span>
+            )}
+          </div>
+          <p className="text-white/40 text-sm">
+            Emergency posts with incident sub-types. Verifying one activates Crisis Mode.
+          </p>
+
+          {incidentEvents.length === 0 ? (
+            <p className="text-white/20 text-sm text-center py-4">No incident reports yet.</p>
+          ) : (
+            <div className="flex flex-col">
+              {incidentEvents.map((e) => (
+                <EventCard
+                  key={e.id}
+                  event={e}
+                  crisisVerify={{
+                    isVerified: verifiedIds.has(e.id),
+                    onVerify: () => handleVerifyAndActivate(e.id),
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Incident Types Manager */}
         <div className="bg-secondary rounded-3xl p-6 flex flex-col gap-4">
           <div className="flex items-center gap-2">
@@ -79,7 +144,7 @@ export default function AdminCrisisPage() {
             {incidentTypes.map((incident) => (
               <div
                 key={incident.key}
-                className="flex items-center gap-1.5 bg-input border border-red-emergency/30 rounded-[10px] px-3 py-2"
+                className="flex items-center gap-1.5 bg-background border border-red-emergency/30 rounded-[10px] px-3 py-2"
               >
                 <span className="text-sm">{incident.icon}</span>
                 <span className="text-red-emergency/90 text-xs font-bold uppercase">{incident.label}</span>

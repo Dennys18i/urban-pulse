@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { X, ImagePlus } from "lucide-react";
 import { EventType } from "@/types/Event";
 import { EVENT_TAG_STYLES, DEFAULT_INCIDENT_TYPES } from "@/lib/constants";
+import { useCrisisMode } from "@/context/CrisisModeContext";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -85,6 +86,7 @@ export default function AddPostPage() {
   const [emergencyLng, setEmergencyLng] = useState<number | null>(null);
   const [emergencyAddress, setEmergencyAddress] = useState<string>("");
   const [selectedIncidentType, setSelectedIncidentType] = useState<string | null>(null);
+  const { isCrisisActive } = useCrisisMode();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -109,6 +111,10 @@ export default function AddPostPage() {
       },
     },
   });
+
+  useEffect(() => {
+    if (isCrisisActive) setSelectedTag("Emergency");
+  }, [isCrisisActive]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -147,6 +153,11 @@ export default function AddPostPage() {
 
     if (selectedTag === "Emergency" && (!emergencyLat || !emergencyLng)) {
       alert("Please select the emergency location on the map!");
+      return;
+    }
+
+    if (isCrisisActive && selectedTag === "Emergency" && !selectedIncidentType) {
+      alert("Please select an incident type!");
       return;
     }
 
@@ -273,38 +284,50 @@ export default function AddPostPage() {
           </div>
         </div>
 
-        <h2 className="text-white font-bold text-2xl mb-4 border-b-2 border-white/20 pb-2">
-          TAGS
-        </h2>
-        <div className="flex flex-wrap gap-3 mb-8 px-1 py-1">
-          {(Object.keys(EVENT_TAG_STYLES) as EventType[]).filter((type) => type !== "LostPet" && type !== "FoundPet").map((type) => {
-            const style = EVENT_TAG_STYLES[type];
-            const isSelected = selectedTag === type;
-            const isDisabled =
-              (type === "Skill" || type === "Lend") && !isVerified;
+        {isCrisisActive ? (
+          <div className="mb-8 flex items-center gap-3 bg-red-emergency/15 border border-red-emergency/30 rounded-2xl px-4 py-3">
+            <span className="text-2xl">🚨</span>
+            <div>
+              <p className="text-red-emergency font-bold text-sm uppercase">Crisis Mode Active</p>
+              <p className="text-white/50 text-xs">Only Emergency posts can be created</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-white font-bold text-2xl mb-4 border-b-2 border-white/20 pb-2">
+              TAGS
+            </h2>
+            <div className="flex flex-wrap gap-3 mb-8 px-1 py-1">
+              {(Object.keys(EVENT_TAG_STYLES) as EventType[]).filter((type) => type !== "LostPet" && type !== "FoundPet").map((type) => {
+                const style = EVENT_TAG_STYLES[type];
+                const isSelected = selectedTag === type;
+                const isDisabled =
+                  (type === "Skill" || type === "Lend") && !isVerified;
 
-            return (
-              <button
-                key={type}
-                onClick={() => !isDisabled && setSelectedTag(type)}
-                disabled={isDisabled}
-                className={`px-4 py-2.5 rounded-[10px] text-[10px] font-bold uppercase transition-all
-                ${isDisabled ? "opacity-30 cursor-not-allowed grayscale" : "cursor-pointer"}
-                ${isSelected ? "scale-105" : ""}
-              `}
-                style={{
-                  backgroundColor: style.bgColor,
-                  color: style.textColor,
-                  boxShadow: isSelected
-                    ? `0 0 10px ${style.bgColor}80, inset 0 0 3px white`
-                    : "none",
-                }}
-              >
-                {style.title}
-              </button>
-            );
-          })}
-        </div>
+                return (
+                  <button
+                    key={type}
+                    onClick={() => !isDisabled && setSelectedTag(type)}
+                    disabled={isDisabled}
+                    className={`px-4 py-2.5 rounded-[10px] text-[10px] font-bold uppercase transition-all
+                    ${isDisabled ? "opacity-30 cursor-not-allowed grayscale" : "cursor-pointer"}
+                    ${isSelected ? "scale-105" : ""}
+                  `}
+                    style={{
+                      backgroundColor: style.bgColor,
+                      color: style.textColor,
+                      boxShadow: isSelected
+                        ? `0 0 10px ${style.bgColor}80, inset 0 0 3px white`
+                        : "none",
+                    }}
+                  >
+                    {style.title}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         {selectedTag === "Emergency" && (
           <div className="animate-fade-up mb-6">
