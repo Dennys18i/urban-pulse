@@ -18,4 +18,5 @@ export interface Event {
   createdAt: string;
   isActive: boolean;
   isCompleted?: boolean;
+  emergencySubType?: string | null;
 }

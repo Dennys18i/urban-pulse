@@ -10,3 +10,13 @@ export const EVENT_TAG_STYLES: Record<EventType, { title: string; textColor: str
 };
 
 export const FILTER_OPTIONS = Object.values(EVENT_TAG_STYLES).map(style => style.title);
+
+export const EMERGENCY_SUBTYPES = [
+  "Blackout",
+  "Fire",
+  "Flood",
+  "Earthquake",
+  "Severe Storm",
+  "Road Blockage",
+  "Infrastructure Damage",
+];

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Montagu_Slab, Inter } from "next/font/google";
 import { SignalRProvider } from "@/context/SignalRContext";
 import { UserProvider } from "@/context/UserContext";
-import { EventProvider } from "@/context/EventContext";
 import { RadiusProvider } from "@/context/RadiusContext";
 import { SevereWeatherProvider } from "@/context/SevereWeatherContext";
 import "./globals.css";
@@ -40,11 +39,9 @@ export default function RootLayout({
         <SevereWeatherProvider>
           <SignalRProvider>
             <UserProvider>
-              <EventProvider>
-                <RadiusProvider>
-                  {children}
-                </RadiusProvider>
-              </EventProvider>
+              <RadiusProvider>
+                {children}
+              </RadiusProvider>
             </UserProvider>
           </SignalRProvider>
         </SevereWeatherProvider>
