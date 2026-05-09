@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useEvent } from "@/context/EventContext";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
 
 function DesktopWeatherCard() {
@@ -66,20 +65,9 @@ function DesktopWeatherCard() {
 }
 
 export default function RightSidebar() {
-  const { event } = useEvent();
-
   return (
     <aside className="hidden lg:flex lg:flex-1 lg:flex-col lg:gap-4">
       <DesktopWeatherCard />
-
-      <div className="bg-weather-nice rounded-2xl p-8 h-30 flex flex-col justify-center gap-1">
-        <p className="text-white font-bold text-2xl leading-tight tracking-tight">
-          Event
-        </p>
-        <p className="text-white font-normal text-xl leading-tight tracking-tight">
-          {event ?? "No events"}
-        </p>
-      </div>
     </aside>
   );
 }

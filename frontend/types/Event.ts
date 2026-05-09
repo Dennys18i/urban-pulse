@@ -19,4 +19,5 @@ export interface Event {
   isActive: boolean;
   isCompleted?: boolean;
   aiTags?: string | null;
+  emergencySubType?: string | null;
 }

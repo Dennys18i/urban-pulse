@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X, ImagePlus } from "lucide-react";
 import { EventType } from "@/types/Event";
-import { EVENT_TAG_STYLES } from "@/lib/constants";
+import { EVENT_TAG_STYLES, EMERGENCY_SUBTYPES } from "@/lib/constants";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -73,6 +73,8 @@ export default function AddPostPage() {
   const [userLng, setUserLng] = useState<number | null>(null);
 
   const [selectedTag, setSelectedTag] = useState<EventType | null>(null);
+  const [emergencySubType, setEmergencySubType] = useState<string | null>(null);
+  const [dynamicSubtypes, setDynamicSubtypes] = useState<string[]>([]);
   const [photo, setPhoto] = useState<File | null>(null);
 
   const [requestedItem, setRequestedItem] = useState("");
@@ -111,6 +113,22 @@ export default function AddPostPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    fetch("http://localhost:5248/api/emergencysubtype", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data: { id: number; name: string }[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDynamicSubtypes(data.map((s) => s.name));
+        } else {
+          setDynamicSubtypes(EMERGENCY_SUBTYPES);
+        }
+      })
+      .catch(() => setDynamicSubtypes(EMERGENCY_SUBTYPES));
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
     fetch("http://localhost:5248/api/user/profile", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -141,6 +159,11 @@ export default function AddPostPage() {
 
     if ((selectedTag === "Skill" || selectedTag === "Lend") && !requestedItem) {
       alert("Please specify the item/skill you need!");
+      return;
+    }
+
+    if (selectedTag === "Emergency" && !emergencySubType) {
+      alert("Please select an emergency type!");
       return;
     }
 
@@ -178,6 +201,9 @@ export default function AddPostPage() {
     tags.forEach((tag) => formData.append("tags", tag));
 
     if (photo) formData.append("file", photo);
+    if (selectedTag === "Emergency" && emergencySubType) {
+      formData.append("emergencySubType", emergencySubType);
+    }
 
     try {
       const res = await fetch("http://localhost:5248/api/event", {
@@ -282,7 +308,7 @@ export default function AddPostPage() {
             return (
               <button
                 key={type}
-                onClick={() => !isDisabled && setSelectedTag(type)}
+                onClick={() => { if (!isDisabled) { setSelectedTag(type); if (type !== "Emergency") setEmergencySubType(null); } }}
                 disabled={isDisabled}
                 className={`px-4 py-2.5 rounded-[10px] text-[10px] font-bold uppercase transition-all
                 ${isDisabled ? "opacity-30 cursor-not-allowed grayscale" : "cursor-pointer"}
@@ -301,6 +327,33 @@ export default function AddPostPage() {
             );
           })}
         </div>
+
+        {selectedTag === "Emergency" && (
+          <div className="animate-fade-up mb-8">
+            <h2 className="text-white font-bold text-xl mb-2 border-b border-white/20 pb-2 uppercase">
+              Emergency Type
+            </h2>
+            <div className="flex flex-wrap gap-3 mb-8 px-1 py-1">
+              {(dynamicSubtypes.length > 0 ? dynamicSubtypes : EMERGENCY_SUBTYPES).map((sub) => {
+                const isSelected = emergencySubType === sub;
+                return (
+                  <button
+                    key={sub}
+                    onClick={() => setEmergencySubType(sub)}
+                    className={`px-4 py-2.5 rounded-[10px] text-[10px] font-bold uppercase cursor-pointer transition-all ${isSelected ? "scale-105" : ""}`}
+                    style={{
+                      backgroundColor: "#A53A3A",
+                      color: "#FFFFFF",
+                      boxShadow: isSelected ? "0 0 10px #A53A3A80, inset 0 0 3px white" : "none",
+                    }}
+                  >
+                    {sub}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {selectedTag === "Emergency" && (
           <div className="animate-fade-up mb-8">
