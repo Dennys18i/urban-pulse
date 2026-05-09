@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useEvent } from "@/context/EventContext";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
 
 interface WeatherData {
@@ -17,7 +16,6 @@ export default function DashboardBanner({
   onSevereWeather?: (isSevere: boolean) => void;
 }) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const { event } = useEvent();
   const { isSevereWeather } = useSevereWeather();
 
   useEffect(() => {
@@ -60,10 +58,6 @@ export default function DashboardBanner({
         priority
         className="absolute object-cover z-0 top-0 w-full h-full rounded-3xl"
       />
-      <div className="flex-1 z-2 bg-weather-nice rounded-2xl flex flex-col justify-center p-2 px-4 min-h-20 text-center">
-        <p className="w-full font-bold text-lg">Event</p>
-        <p className="w-full font-light">{event ?? "No events"}</p>
-      </div>
       <div
         className={`flex-1 z-2 rounded-2xl flex justify-center items-center p-2 px-4 min-h-20 transition-all relative ${
           isSevereWeather ? "bg-red-emergency" : "bg-weather-nice"
