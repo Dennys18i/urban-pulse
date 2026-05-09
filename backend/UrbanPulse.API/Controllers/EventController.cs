@@ -134,12 +134,12 @@ namespace UrbanPulse.API.Controllers
                     try
                     {
                         var aiTagsTask = _claudeVisionService.AnalyzeDocumentImageAsync(capturedImageUrl);
-                        var redactedUrlTask = _redactionService.RedactAndUploadAsync(capturedImageUrl);
+                        var redactionTask = _redactionService.RedactAndUploadAsync(capturedImageUrl);
 
-                        await Task.WhenAll(aiTagsTask, redactedUrlTask);
+                        await Task.WhenAll(aiTagsTask, redactionTask);
 
                         var aiTags = aiTagsTask.Result;
-                        var redactedUrl = redactedUrlTask.Result;
+                        var redactionResult = redactionTask.Result;
 
                         using var scope = _scopeFactory.CreateScope();
                         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -147,14 +147,17 @@ namespace UrbanPulse.API.Controllers
                         if (createdEvent != null)
                         {
                             if (aiTags != null) createdEvent.AiTags = aiTags;
-                            if (redactedUrl != null) createdEvent.ImageUrl = redactedUrl; 
+                            if (redactionResult.RedactedImageUrl != null)
+                                createdEvent.ImageUrl = redactionResult.RedactedImageUrl;
+                            if (redactionResult.SearchIndex != null)
+                                createdEvent.SearchIndex = redactionResult.SearchIndex;
                             await db.SaveChangesAsync();
-                            Console.WriteLine($"[REDACT] Done for event {eventId}");
+                            Console.WriteLine($"[DOC] Done for event {eventId}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[REDACT] Error: {ex.Message}");
+                        Console.WriteLine($"[DOC] Error: {ex.Message}");
                     }
                 });
             }
@@ -216,6 +219,45 @@ namespace UrbanPulse.API.Controllers
                         .SendAsync("NewNotification", notification);
                 }
             }
+
+            return Ok(result);
+        }
+
+        [HttpGet("documents/search")]
+        public async Task<IActionResult> SearchDocuments([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
+                return Ok(new List<object>());
+
+            var qUpper = q.ToUpper();
+
+            var docs = await _context.Events
+                .Include(e => e.CreatedByUser)
+                .Where(e => e.IsActive &&
+                            e.Type == EventType.FoundDocument &&
+                            e.AiTags != null &&
+                            (
+                                e.AiTags.ToUpper().Contains(qUpper) ||
+                                (e.SearchIndex != null && e.SearchIndex.ToUpper().Contains(qUpper))
+                            ))
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+
+            var result = docs.Select(e => new
+            {
+                id = e.Id,
+                description = e.Description,
+                type = e.Type,
+                imageUrl = e.ImageUrl,
+                aiTags = e.AiTags,
+                createdByUserId = e.CreatedByUserId,
+                createdByEmail = e.CreatedByUser?.Email,
+                createdByFullName = e.CreatedByUser?.FullName,
+                createdByAvatarUrl = e.CreatedByUser?.AvatarUrl,
+                isVerifiedUser = e.CreatedByUser?.IsVerified ?? false,
+                createdAt = e.CreatedAt,
+                isActive = e.IsActive,
+            });
 
             return Ok(result);
         }
