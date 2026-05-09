@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X, ImagePlus } from "lucide-react";
 import { EventType } from "@/types/Event";
-import { EVENT_TAG_STYLES } from "@/lib/constants";
+import { EVENT_TAG_STYLES, DEFAULT_INCIDENT_TYPES } from "@/lib/constants";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -84,6 +84,7 @@ export default function AddPostPage() {
   const [emergencyLat, setEmergencyLat] = useState<number | null>(null);
   const [emergencyLng, setEmergencyLng] = useState<number | null>(null);
   const [emergencyAddress, setEmergencyAddress] = useState<string>("");
+  const [selectedIncidentType, setSelectedIncidentType] = useState<string | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -174,7 +175,10 @@ export default function AddPostPage() {
     formData.append("latitude", lat.toString());
     formData.append("longitude", lng.toString());
 
-    const tags = requestedItem ? [requestedItem] : [selectedTag];
+    const tags: string[] = [];
+    if (selectedTag === "Emergency" && selectedIncidentType) tags.push(selectedIncidentType);
+    if (requestedItem) tags.push(requestedItem);
+    if (tags.length === 0) tags.push(selectedTag!);
     tags.forEach((tag) => formData.append("tags", tag));
 
     if (photo) formData.append("file", photo);
@@ -301,6 +305,37 @@ export default function AddPostPage() {
             );
           })}
         </div>
+
+        {selectedTag === "Emergency" && (
+          <div className="animate-fade-up mb-6">
+            <h2 className="text-white font-bold text-xl mb-2 border-b border-white/20 pb-2 uppercase">
+              Incident Type
+            </h2>
+            <p className="text-white/40 text-xs mb-4">
+              Select the type of emergency
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {DEFAULT_INCIDENT_TYPES.map((incident) => {
+                const isSelected = selectedIncidentType === incident.key;
+                return (
+                  <button
+                    key={incident.key}
+                    onClick={() => setSelectedIncidentType(isSelected ? null : incident.key)}
+                    className={`px-3 py-2.5 rounded-[10px] text-[11px] font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5 border
+                      ${isSelected
+                        ? "bg-red-emergency text-white border-red-emergency scale-105"
+                        : "bg-input text-red-emergency/70 border-red-emergency/30 opacity-70 hover:opacity-100"
+                      }`}
+                    style={isSelected ? { boxShadow: "0 0 10px rgba(165,58,58,0.5), inset 0 0 3px white" } : undefined}
+                  >
+                    <span>{incident.icon}</span>
+                    {incident.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {selectedTag === "Emergency" && (
           <div className="animate-fade-up mb-8">

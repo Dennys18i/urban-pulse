@@ -15,6 +15,7 @@ import { useSignalR } from "@/context/SignalRContext";
 import { useRadius } from "@/context/RadiusContext";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
 import { useUser } from "@/context/UserContext";
+import { useCrisisMode } from "@/context/CrisisModeContext";
 import UrbanTitle from "@/components/ui/UrbanTitle";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
@@ -107,9 +108,11 @@ export default function DashboardPage() {
   const { radiusKm } = useRadius();
   const { isSevereWeather } = useSevereWeather();
   const { isAdmin } = useUser();
+  const { isCrisisActive } = useCrisisMode();
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetEventId = searchParams.get("eventId");
+  const showAll = searchParams.get("all") === "true";
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -187,6 +190,8 @@ export default function DashboardPage() {
   const filteredEvents = events.filter((e) => {
     const mappedType = typeof e.type === "number" ? typeMap[e.type] : (e.type as EventType);
 
+    if (isCrisisActive && !showAll && mappedType !== "Emergency") return false;
+
     if (activeFilter !== "ALL" && EVENT_TAG_STYLES[mappedType]?.title !== activeFilter) {
       return false;
     }
@@ -221,6 +226,28 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {isCrisisActive && (
+        <div className="w-full animate-fade-up mt-4 mb-2">
+          <div className="relative w-full">
+            <div className="absolute inset-0 bg-red-emergency rounded-2xl opacity-20" />
+            <div className="relative w-full bg-red-emergency/80 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🚨</span>
+                <div>
+                  <p className="text-white font-bold text-sm">Crisis Mode Active</p>
+                  <p className="text-white/70 text-xs">Showing emergency posts only</p>
+                </div>
+              </div>
+              {!showAll && (
+                <Link href="/dashboard?all=true" className="text-white/80 text-xs font-bold underline underline-offset-2 shrink-0">
+                  View all posts
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full py-2 flex flex-col items-center gap-4 mb-4 mt-4">
         <div className="lg:hidden">
           <UrbanTitle />
@@ -229,7 +256,9 @@ export default function DashboardPage() {
           <DashboardBanner />
         </div>
 
-        <EventFilters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+        {!isCrisisActive && (
+          <EventFilters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+        )}
       </div>
 
       <div className="flex flex-col gap-4 mt-2">
