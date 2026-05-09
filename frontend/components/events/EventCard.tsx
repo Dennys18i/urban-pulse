@@ -232,7 +232,7 @@ export default function EventCard({ event, isMyPost, onDelete, flagCount, onView
         <CardFooter
           likes={likes} liked={liked} onLike={handleLike}
           saved={saved} onSave={handleSave}
-          type={mappedType} comments={commentCount} onComment={() => setShowComments(true)}
+          type={mappedType} subType={event.emergencySubType} comments={commentCount} onComment={() => setShowComments(true)}
           flagCount={flagCount}
           onViewInsights={onViewInsights ? () => onViewInsights(event.id) : undefined}
           isMyPost={isOwner}

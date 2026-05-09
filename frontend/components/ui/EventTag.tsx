@@ -3,13 +3,16 @@ import { EVENT_TAG_STYLES } from "@/lib/constants";
 
 interface EventTagProps {
   type: EventType;
+  subType?: string | null;
   className?: string;
 }
 
-export default function EventTag({ type, className = "" }: EventTagProps) {
+export default function EventTag({ type, subType, className = "" }: EventTagProps) {
   const style = EVENT_TAG_STYLES[type];
 
-  if (!style) return null; 
+  if (!style) return null;
+
+  const label = type === "Emergency" && subType ? subType.toUpperCase() : style.title;
 
   return (
     <span
@@ -19,7 +22,7 @@ export default function EventTag({ type, className = "" }: EventTagProps) {
         color: style.textColor,
       }}
     >
-      {style.title}
+      {label}
     </span>
   );
 }

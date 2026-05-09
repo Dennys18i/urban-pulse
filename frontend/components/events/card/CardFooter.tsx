@@ -9,6 +9,7 @@ interface CardFooterProps {
   saved: boolean;
   onSave: () => void;
   type: EventType;
+  subType?: string | null;
   comments: number;
   onComment: () => void;
   flagCount?: number;
@@ -24,6 +25,7 @@ export default function CardFooter({
   saved,
   onSave,
   type,
+  subType,
   comments,
   onComment,
   flagCount,
@@ -50,7 +52,7 @@ export default function CardFooter({
         </div>
 
         <div className="mt-3">
-          <EventTag type={type} />
+          <EventTag type={type} subType={subType} />
         </div>
       </div>
     );
@@ -94,7 +96,7 @@ export default function CardFooter({
       </div>
 
       <div className="mt-3">
-        <EventTag type={type} />
+        <EventTag type={type} subType={subType} />
       </div>
     </div>
   );
