@@ -1,4 +1,4 @@
-export type EventType = "General" | "Emergency" | "Skill" | "Lend" | "LostPet" | "FoundPet";
+export type EventType = "General" | "Emergency" | "Skill" | "Lend" | "LostPet" | "FoundPet" | "FoundDocument";
 
 export interface Event {
   id: number;
@@ -18,4 +18,5 @@ export interface Event {
   createdAt: string;
   isActive: boolean;
   isCompleted?: boolean;
+  aiTags?: string | null;
 }

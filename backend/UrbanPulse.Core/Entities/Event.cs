@@ -8,7 +8,8 @@ public enum EventType
     Skill,
     Lend,
     LostPet,
-    FoundPet
+    FoundPet,
+    FoundDocument
 }
 
 
