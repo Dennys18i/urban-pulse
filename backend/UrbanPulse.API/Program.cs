@@ -20,7 +20,10 @@ namespace UrbanPulse_Backend
     {
         public static void Main(string[] args)
         {
-            DotNetEnv.Env.Load();
+            if (File.Exists(".env"))
+            {
+                DotNetEnv.Env.Load();
+            }
 
             var builder = WebApplication.CreateBuilder(args);
 
