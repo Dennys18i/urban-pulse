@@ -27,6 +27,8 @@ interface CrisisContextType {
   isInLocalCrisis: boolean;
   isInGlobalCrisis: boolean;
   crisisSubTypes: string[];
+  viewRegularContent: boolean;
+  toggleViewRegularContent: () => void;
 }
 
 const CrisisContext = createContext<CrisisContextType>({
@@ -35,6 +37,8 @@ const CrisisContext = createContext<CrisisContextType>({
   isInLocalCrisis: false,
   isInGlobalCrisis: false,
   crisisSubTypes: [],
+  viewRegularContent: false,
+  toggleViewRegularContent: () => {},
 });
 
 export const CrisisProvider = ({ children }: { children: React.ReactNode }) => {
@@ -42,6 +46,8 @@ export const CrisisProvider = ({ children }: { children: React.ReactNode }) => {
   const { connection } = useSignalR();
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [globalCrises, setGlobalCrises] = useState<GlobalCrisis[]>([]);
+  const [viewRegularContent, setViewRegularContent] = useState(false);
+  const [wasInCrisis, setWasInCrisis] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -91,6 +97,17 @@ export const CrisisProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isInLocalCrisis = localCrises.length > 0;
   const isInGlobalCrisis = globalCrises.length > 0;
+  const isInCrisis = isInLocalCrisis || isInGlobalCrisis;
+
+  // Reset "view regular" when a new crisis starts
+  useEffect(() => {
+    if (isInCrisis && !wasInCrisis) {
+      setViewRegularContent(false);
+    }
+    setWasInCrisis(isInCrisis);
+  }, [isInCrisis, wasInCrisis]);
+
+  const toggleViewRegularContent = () => setViewRegularContent(prev => !prev);
 
   const crisisSubTypes = useMemo(() => {
     const types = new Set<string>();
@@ -100,7 +117,7 @@ export const CrisisProvider = ({ children }: { children: React.ReactNode }) => {
   }, [localCrises, globalCrises]);
 
   return (
-    <CrisisContext.Provider value={{ localCrises, globalCrises, isInLocalCrisis, isInGlobalCrisis, crisisSubTypes }}>
+    <CrisisContext.Provider value={{ localCrises, globalCrises, isInLocalCrisis, isInGlobalCrisis, crisisSubTypes, viewRegularContent, toggleViewRegularContent }}>
       {children}
     </CrisisContext.Provider>
   );

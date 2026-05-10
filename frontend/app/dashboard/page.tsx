@@ -17,6 +17,7 @@ import { EVENT_TAG_STYLES } from "@/lib/constants";
 import { useSignalR } from "@/context/SignalRContext";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
 import { useUser } from "@/context/UserContext";
+import { useCrisis } from "@/context/CrisisContext";
 import UrbanTitle from "@/components/ui/UrbanTitle";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
@@ -106,6 +107,8 @@ export default function DashboardPage() {
   const { connection } = useSignalR();
   const { isSevereWeather } = useSevereWeather();
   const { isAdmin } = useUser();
+  const { isInLocalCrisis, isInGlobalCrisis, viewRegularContent } = useCrisis();
+  const isInCrisis = isInLocalCrisis || isInGlobalCrisis;
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetEventId = searchParams.get("eventId");
@@ -198,15 +201,23 @@ export default function DashboardPage() {
 
   const filteredEvents = events.filter((e) => {
     const mappedType = typeof e.type === "number" ? typeMap[e.type] : (e.type as EventType);
+
+    // In crisis mode (without opting into regular content), show only Emergency
+    if (isInCrisis && !viewRegularContent) {
+      return mappedType === "Emergency";
+    }
+
     if (activeFilter !== "ALL" && EVENT_TAG_STYLES[mappedType]?.title !== activeFilter) {
       return false;
     }
     return true;
   });
 
-  const filteredClusters = activeFilter === "ALL" || activeFilter === "EMERGENCY"
+  const filteredClusters = isInCrisis && !viewRegularContent
     ? clusters
-    : [];
+    : activeFilter === "ALL" || activeFilter === "EMERGENCY"
+      ? clusters
+      : [];
 
   const feedItems: FeedItem[] = [
     ...filteredEvents.map((e): FeedItem => ({ kind: "event", data: e })),
@@ -239,7 +250,14 @@ export default function DashboardPage() {
         <div className="lg:hidden w-full">
           <DashboardBanner />
         </div>
-        <EventFilters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+        {(!isInCrisis || viewRegularContent) && (
+          <EventFilters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+        )}
+        {isInCrisis && !viewRegularContent && (
+          <p className="text-red-emergency/80 text-xs font-medium text-center tracking-wide uppercase">
+            ⚠️ Showing emergency content only
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-4 mt-2">
