@@ -1,3 +1,4 @@
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Vision.V1;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -35,6 +36,24 @@ public class DocumentRedactionService
         @"^\d{2}\.\d{2}\.\d{4}$",
     };
 
+    private static ImageAnnotatorClient CreateVisionClient()
+    {
+        var credentialsJson = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIALS_JSON");
+
+        if (!string.IsNullOrEmpty(credentialsJson))
+        {
+            var credential = GoogleCredential.FromJson(credentialsJson)
+                .CreateScoped(ImageAnnotatorClient.DefaultScopes);
+            return new ImageAnnotatorClientBuilder
+            {
+                Credential = credential
+            }.Build();
+        }
+
+        // fallback pentru local cu fișier
+        return ImageAnnotatorClient.Create();
+    }
+
     public async Task<RedactionResult> RedactAndUploadAsync(string imageUrl)
     {
         Console.WriteLine($"[REDACT] Starting...");
@@ -47,7 +66,7 @@ public class DocumentRedactionService
             var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
             Console.WriteLine($"[REDACT] Downloaded {imageBytes.Length} bytes");
 
-            var visionClient = ImageAnnotatorClient.Create();
+            var visionClient = CreateVisionClient();
             var image = Google.Cloud.Vision.V1.Image.FromBytes(imageBytes);
             var response = await visionClient.DetectTextAsync(image);
             Console.WriteLine($"[REDACT] Vision returned {response.Count} annotations");
@@ -127,22 +146,35 @@ public class DocumentRedactionService
         {
             var text = texts[i];
 
+            // CNP — 13 cifre → salvează ultimele 6
             if (Regex.IsMatch(text, @"^\d{13}$"))
             {
                 searchData["cnp_last6"] = text.Substring(7);
             }
 
+            // număr document — 2 litere + 6 cifre
             if (Regex.IsMatch(text, @"^[A-Z]{2}\d{6}$"))
             {
-                searchData["doc_number"] = text; 
+                searchData["doc_number"] = text;
             }
 
+            // combinații de 2 tokene consecutive: "RT" + "123456"
+            if (i + 1 < texts.Count)
+            {
+                var combined = texts[i] + texts[i + 1];
+                if (Regex.IsMatch(combined, @"^[A-Z]{2}\d{6}$"))
+                {
+                    searchData["doc_number"] = combined;
+                }
+            }
+
+            // nume — textul de după cuvântul NUME sau NOM
             if ((text == "NUME" || text == "NOM" || text == "SURNAME" || text == "LAST" || text == "NAME") && i + 1 < texts.Count)
             {
                 var nextText = texts[i + 1];
                 if (nextText.Length >= 2 && Regex.IsMatch(nextText, @"^[A-Z]+$"))
                 {
-                    searchData["name_prefix"] = nextText; 
+                    searchData["name_prefix"] = nextText;
                 }
             }
         }
