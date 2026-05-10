@@ -71,7 +71,7 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
     const loadComments = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/event/${eventId}/comment`, {
+        const res = await fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/event/${eventId}/comment`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
@@ -117,7 +117,7 @@ export default function CommentsSheet({ eventId, onClose }: CommentsSheetProps) 
     if (!text.trim()) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/event/${eventId}/comment`, {
+      const res = await fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/event/${eventId}/comment`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

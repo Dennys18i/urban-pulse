@@ -24,8 +24,7 @@ import { useCrisis } from "@/context/CrisisContext";
 import UrbanTitle from "@/components/ui/UrbanTitle";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
-
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 function MobileSafetyPortal({ onClick }: { onClick: () => void }) {
   const [mounted, setMounted] = useState(false);
@@ -170,15 +169,12 @@ export default function DashboardPage() {
     const handleEventDeactivated = (eventId: number) => {
       setEvents((prev) => prev.filter((e) => e.id !== eventId));
     };
-
     const handleClusterCreated = (cluster: Cluster) => {
       setClusters((prev) => [cluster, ...prev]);
     };
-
     const handleClusterUpdated = (cluster: Cluster) => {
       setClusters((prev) => prev.map((c) => (c.id === cluster.id ? cluster : c)));
     };
-
     const handleClusterResolved = (clusterId: number) => {
       setClusters((prev) => prev.filter((c) => c.id !== clusterId));
     };

@@ -26,7 +26,7 @@ export default function PersonalInfoPage() {
     const loadPersonalInfo = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+        const res = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -53,7 +53,7 @@ export default function PersonalInfoPage() {
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+        const res = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,

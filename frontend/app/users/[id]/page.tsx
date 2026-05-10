@@ -8,7 +8,7 @@ import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { useUser } from "@/context/UserContext";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface UserProfile {
   id: number;

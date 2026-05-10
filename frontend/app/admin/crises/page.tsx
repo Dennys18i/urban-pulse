@@ -10,7 +10,7 @@ import { Cluster } from "@/types/Cluster";
 import { GlobalCrisis } from "@/types/GlobalCrisis";
 import GoBackButton from "@/components/ui/GoBackButton";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface EmergencySubtype {
   id: number;

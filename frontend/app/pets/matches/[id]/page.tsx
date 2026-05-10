@@ -9,7 +9,7 @@ import { Event } from "@/types/Event";
 import { use } from "react";
 import { useSearchParams } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface Match {
   score: number;

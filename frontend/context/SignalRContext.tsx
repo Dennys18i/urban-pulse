@@ -34,7 +34,9 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
     if (isPublic) return;
 
     const eventsConn = new signalR.HubConnectionBuilder()
-      .withUrl(`${API}/hubs/events`)
+      .withUrl(`${API}/hubs/events`, {
+        transport: signalR.HttpTransportType.LongPolling,
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -46,6 +48,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
       const notifConn = new signalR.HubConnectionBuilder()
         .withUrl(`${API}/hubs/notifications`, {
           accessTokenFactory: () => localStorage.getItem("token") ?? "",
+          transport: signalR.HttpTransportType.LongPolling,
         })
         .withAutomaticReconnect()
         .build();
@@ -56,6 +59,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
       const globalConn = new signalR.HubConnectionBuilder()
         .withUrl(`${API}/hubs/global-chat`, {
           accessTokenFactory: () => localStorage.getItem("token") ?? "",
+          transport: signalR.HttpTransportType.LongPolling,
         })
         .withAutomaticReconnect()
         .build();
@@ -66,6 +70,7 @@ export const SignalRProvider = ({ children }: { children: React.ReactNode }) => 
       const severeConn = new signalR.HubConnectionBuilder()
         .withUrl(`${API}/hubs/severe-chat`, {
           accessTokenFactory: () => localStorage.getItem("token") ?? "",
+          transport: signalR.HttpTransportType.LongPolling,
         })
         .withAutomaticReconnect()
         .build();

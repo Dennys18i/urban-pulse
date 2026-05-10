@@ -7,7 +7,7 @@ import { useSignalR } from "@/context/SignalRContext";
 import { NotificationItem } from "@/components/notifications/NotificationTypes";
 import NotificationCard from "@/components/notifications/NotificationCard";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);

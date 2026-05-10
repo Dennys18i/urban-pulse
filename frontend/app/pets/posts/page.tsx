@@ -7,7 +7,7 @@ import { Event } from "@/types/Event";
 
 type PetTab = "LostPet" | "FoundPet";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 export default function PetsPostsPage() {
   const [activeTab, setActiveTab] = useState<PetTab>("LostPet");
