@@ -18,14 +18,27 @@ const STATUS_OPTIONS = [
 
 export default function SafetyCheckInModal({ onClose, onStatusSet }: Props) {
   const handleSelect = async (status: number) => {
-    const token = localStorage.getItem("token");
-    await fetch(`${API}/api/user/safety-status`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    onStatusSet(status);
-    onClose();
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API}/api/user/safety-status`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (!response.ok) {
+        console.error("Failed to update safety status:", response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Error response:", errorData);
+        return;
+      }
+      
+      console.log("Safety status updated successfully:", status);
+      onStatusSet(status);
+      onClose();
+    } catch (error) {
+      console.error("Error updating safety status:", error);
+    }
   };
 
   return createPortal(
