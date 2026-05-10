@@ -301,7 +301,7 @@ export default function AddPostPage() {
           TAGS
         </h2>
         <div className="flex flex-wrap gap-3 mb-8 px-1 py-1">
-          {(Object.keys(EVENT_TAG_STYLES) as EventType[]).filter((type) => type !== "LostPet" && type !== "FoundPet").map((type) => {
+          {(Object.keys(EVENT_TAG_STYLES) as EventType[]).filter((type) => type !== "LostPet" && type !== "FoundPet" && type !== "FoundDocument").map((type) => {
             const style = EVENT_TAG_STYLES[type];
             const isSelected = selectedTag === type;
             const isDisabled =
