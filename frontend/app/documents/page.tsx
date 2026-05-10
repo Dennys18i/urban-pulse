@@ -1,18 +1,16 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
 export default function DocumentsPage() {
   return (
-    <ThreeColumnLayout>
-      <div className="flex flex-col py-2 gap-6">
+    <div className="flex flex-col py-2 gap-6">
 
         <Link
           href="/documents/posts"
-          className="w-[90%] mx-auto bg-blue text-white font-semibold text-lg rounded-full px-6 py-4 flex items-center justify-between transition-opacity hover:opacity-90 active:scale-[0.98]"
+          className="w-[90%] mx-auto bg-blue text-black font-semibold text-lg rounded-full px-6 py-4 flex items-center justify-between transition-opacity hover:opacity-90 active:scale-[0.98]"
         >
           <span>See found documents</span>
-          <ChevronRight size={22} strokeWidth={2.5} />
+          <ChevronRight size={22} strokeWidth={2.5} className="text-black" />
         </Link>
 
         <div className="flex items-center justify-center py-4">
@@ -29,13 +27,12 @@ export default function DocumentsPage() {
           </p>
           <Link
             href="/documents/add"
-            className="bg-blue text-white font-bold text-base px-12 py-3 rounded-full hover:opacity-90 transition-opacity active:scale-95"
+            className="bg-blue text-black font-bold text-base px-12 py-3 rounded-full hover:opacity-90 transition-opacity active:scale-95"
           >
             Report found
           </Link>
         </div>
 
       </div>
-    </ThreeColumnLayout>
   );
 }
