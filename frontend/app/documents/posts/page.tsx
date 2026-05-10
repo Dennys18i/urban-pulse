@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import EventCard from "@/components/events/EventCard";
 import GoBackButton from "@/components/ui/GoBackButton";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import { Event, EventType } from "@/types/Event";
 import { Search } from "lucide-react";
 
@@ -65,15 +65,22 @@ export default function DocumentPostsPage() {
   }, [docs]);
 
   return (
-    <ThreeColumnLayout>
-      <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
-
-        <div className="flex items-center gap-3 mb-4">
-          <GoBackButton />
-          <h1 className="text-white font-black text-2xl font-montagu uppercase">
+    <>
+      <div className="flex items-center relative mb-4 lg:hidden">
+        <GoBackButton />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-white font-bold text-base font-montagu uppercase">
             📄 Found Documents
           </h1>
         </div>
+      </div>
+
+      <ThreeColumnLayout>
+      <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
+
+        <h1 className="hidden lg:block text-white font-black text-2xl font-montagu uppercase mb-4">
+          📄 Found Documents
+        </h1>
 
         <button
           onClick={() => router.push("/documents/search")}
@@ -119,6 +126,7 @@ export default function DocumentPostsPage() {
           </div>
         ))}
       </div>
-    </ThreeColumnLayout>
+      </ThreeColumnLayout>
+    </>
   );
 }
