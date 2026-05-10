@@ -7,7 +7,7 @@ import { BannedUser } from "@/types/BannedUser";
 import SearchBar from "../../../components/search/SearchBar";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 export default function BannedUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");

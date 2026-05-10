@@ -43,13 +43,13 @@ export default function ChatPage() {
         const token = localStorage.getItem("token");
 
         const [profileRes, conversationsRes, messagesRes] = await Promise.all([
-          fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+          fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("process.env.NEXT_PUBLIC_API_URL/api/chat/conversations", {
+          fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/chat/conversations", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`process.env.NEXT_PUBLIC_API_URL/api/chat/conversations/${id}/messages`, {
+          fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/chat/conversations/${id}/messages`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -70,7 +70,7 @@ export default function ChatPage() {
             setOtherUserName(conv.otherUserFullName ?? conv.otherUserEmail?.split("@")[0]);
 
             try {
-              const otherProfileRes = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/user/${conv.otherUserId}`, {
+              const otherProfileRes = await fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/${conv.otherUserId}`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
               if (otherProfileRes.ok) {
@@ -113,7 +113,7 @@ export default function ChatPage() {
     if (!text.trim()) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/chat/conversations/${id}/messages`, {
+      const res = await fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/chat/conversations/${id}/messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ export default function ChatPage() {
     setShowPlusMenu(false);
     try {
       const token = localStorage.getItem("token");
-      const profileRes = await fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+      const profileRes = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!profileRes.ok) return;
@@ -144,7 +144,7 @@ export default function ChatPage() {
         address: profile.address ?? "-",
       });
 
-      const sendRes = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/chat/conversations/${id}/messages`, {
+      const sendRes = await fetch(`https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/chat/conversations/${id}/messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

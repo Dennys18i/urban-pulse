@@ -20,7 +20,7 @@ import { useUser } from "@/context/UserContext";
 import UrbanTitle from "@/components/ui/UrbanTitle";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 
 function MobileSafetyPortal({ onClick }: { onClick: () => void }) {

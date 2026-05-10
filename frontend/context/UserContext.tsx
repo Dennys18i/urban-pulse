@@ -55,7 +55,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const loadUser = async () => {
       try {
-        const res = await fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+        const res = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

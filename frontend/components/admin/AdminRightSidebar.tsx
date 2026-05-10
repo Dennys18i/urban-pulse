@@ -19,7 +19,7 @@ export default function AdminRightSidebar() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("process.env.NEXT_PUBLIC_API_URL/api/admin/stats", {
+    fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/admin/stats", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

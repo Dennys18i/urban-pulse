@@ -48,7 +48,7 @@ export default function TopBar({ back, notifications, settings, addPost }: TopBa
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await fetch("process.env.NEXT_PUBLIC_API_URL/api/user/profile", {
+        const res = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -78,7 +78,7 @@ export default function TopBar({ back, notifications, settings, addPost }: TopBa
     const loadUnreadCount = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("process.env.NEXT_PUBLIC_API_URL/api/notification/unread-count", {
+        const res = await fetch("https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net/api/notification/unread-count", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;

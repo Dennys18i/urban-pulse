@@ -9,7 +9,7 @@ import { NotificationItem } from "./NotificationTypes";
 import NotificationCard from "./NotificationCard";
 import { GiRingingBell } from "react-icons/gi";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface NotificationsPanelProps {
   open: boolean;

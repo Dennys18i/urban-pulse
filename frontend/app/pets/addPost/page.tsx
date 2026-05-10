@@ -10,7 +10,7 @@ import PostFormActions from "@/components/post/PostFormActions";
 
 const PET_TAGS: EventType[] = ["LostPet", "FoundPet"];
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 export default function AddPetPostPage() {
   const router = useRouter();

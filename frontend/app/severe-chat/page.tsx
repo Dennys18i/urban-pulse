@@ -9,7 +9,7 @@ import TopBar from "@/components/layout/TopBar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import ChatRightSidebar from "@/components/layout/ChatRightSidebar";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface SevereMessage {
   id: number;

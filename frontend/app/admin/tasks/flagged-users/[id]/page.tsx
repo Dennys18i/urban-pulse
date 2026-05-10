@@ -10,7 +10,7 @@ import ResolveTaskModal from "@/components/ui/ResolveTaskModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface UserReport {
   id: number;

@@ -6,7 +6,7 @@ import Image from "next/image";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import { useSevereWeather } from "@/context/SevereWeatherContext";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface Conversation {
   id: number;

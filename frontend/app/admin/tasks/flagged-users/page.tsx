@@ -7,7 +7,7 @@ import { ChevronRight } from "lucide-react";
 import GoBackButton from "@/components/ui/GoBackButton";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 interface FlaggedUser {
   userId: number;

@@ -6,7 +6,7 @@ import { useSignalR } from "./SignalRContext";
 import { Cluster } from "@/types/Cluster";
 import { GlobalCrisis } from "@/types/GlobalCrisis";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = "https://urbanpulsebackend-gedpgwakd5euh2bp.switzerlandnorth-01.azurewebsites.net";
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371;
