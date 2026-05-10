@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import EventCard from "@/components/events/EventCard";
 import GoBackButton from "@/components/ui/GoBackButton";
+import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
+import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
+import { useUser } from "@/context/UserContext";
 import { Event, EventType } from "@/types/Event";
-import { Search } from "lucide-react";
+import { Search, Eye } from "lucide-react";
+
 import { API_BASE_URL as API } from "@/lib/api";
 
 const typeMap: Record<number, EventType> = {
@@ -20,6 +23,8 @@ const typeMap: Record<number, EventType> = {
 };
 
 export default function DocumentPostsPage() {
+  const { isAdmin } = useUser();
+  const Layout = isAdmin ? ThreeColumnLayoutAdmin : ThreeColumnLayout;
   const [docs, setDocs] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -40,6 +45,21 @@ export default function DocumentPostsPage() {
       .catch(() => setDocs([]))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleUnblur = async (id: number) => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/api/event/${id}/unblur`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setDocs((prev) =>
+        prev.map((d) =>
+          d.id === id ? { ...d, originalImageUrl: null } : d
+        )
+      );
+    }
+  };
 
   useEffect(() => {
     const hasAnalyzing = docs.some((d) => !d.aiTags);
@@ -64,15 +84,22 @@ export default function DocumentPostsPage() {
   }, [docs]);
 
   return (
-    <ThreeColumnLayout>
-      <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
-
-        <div className="flex items-center gap-3 mb-4">
-          <GoBackButton />
-          <h1 className="text-white font-black text-2xl font-montagu uppercase">
+    <>
+      <div className="flex items-center relative mb-4 lg:hidden">
+        <GoBackButton />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-white font-bold text-base font-montagu uppercase">
             📄 Found Documents
           </h1>
         </div>
+      </div>
+
+      <Layout>
+      <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
+
+        <h1 className="hidden lg:block text-white font-black text-2xl font-montagu uppercase mb-4">
+          📄 Found Documents
+        </h1>
 
         <button
           onClick={() => router.push("/documents/search")}
@@ -100,7 +127,7 @@ export default function DocumentPostsPage() {
 
         {docs.map((doc) => (
           <div key={doc.id}>
-            {!doc.aiTags && (
+            {!isAdmin && !doc.aiTags && (
               <div className="w-full bg-blue/10 border border-blue/20 rounded-2xl px-4 py-3 mb-2 flex items-center gap-3 animate-pulse">
                 <span className="text-lg">🔒</span>
                 <div>
@@ -112,12 +139,22 @@ export default function DocumentPostsPage() {
             <EventCard
               event={{
                 ...doc,
-                imageUrl: doc.aiTags ? doc.imageUrl : null,
+                imageUrl: isAdmin ? doc.imageUrl : (doc.aiTags ? doc.imageUrl : null),
               }}
             />
+            {isAdmin && doc.originalImageUrl && (
+              <button
+                onClick={() => handleUnblur(doc.id)}
+                className="w-full flex items-center justify-center gap-2 mb-4 -mt-2 bg-yellow-primary/10 hover:bg-yellow-primary/20 border border-yellow-primary/40 text-yellow-primary font-semibold text-sm rounded-2xl px-4 py-3 transition-colors cursor-pointer"
+              >
+                <Eye size={16} />
+                Unblur for all users
+              </button>
+            )}
           </div>
         ))}
       </div>
-    </ThreeColumnLayout>
+      </Layout>
+    </>
   );
 }

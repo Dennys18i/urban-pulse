@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Search, Map, MessageCircle, PawPrint } from "lucide-react";
+import { Plus, Search, Map, MessageCircle, PawPrint, FileText } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 function SidebarNavItem({
@@ -96,6 +96,22 @@ export default function LeftSidebar() {
           }`}
         >
           Pets
+        </span>
+      </Link>
+
+      <Link
+        href={"/documents"}
+        className={`flex items-center gap-5 pl-6 py-4 rounded-xl transition-colors hover:bg-[#131313] ${pathname === "/documents" || pathname.startsWith("/documents/") ? "bg-[#131313]" : ""}`}
+      >
+        <div className="size-11 rounded-full bg-blue text-black flex justify-center items-center font-bold">
+          <FileText size={24} strokeWidth={2} />
+        </div>
+        <span
+          className={`text-2xl tracking-tight ${
+            pathname === "/documents" || pathname.startsWith("/documents/") ? "font-bold" : "font-normal"
+          }`}
+        >
+          Documents
         </span>
       </Link>
     </aside>

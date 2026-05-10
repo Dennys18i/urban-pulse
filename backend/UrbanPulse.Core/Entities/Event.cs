@@ -30,6 +30,7 @@ public class Event : BaseEntity
     public bool IsCompleted { get; set; } = false;
     public string? AiTags { get; set; }
     public string? SearchIndex { get; set; }
+    public string? OriginalImageUrl { get; set; }
     public int CreatedByUserId { get; set; }
     public User CreatedByUser { get; set; } = null!;
     public int? ClusterId { get; set; }

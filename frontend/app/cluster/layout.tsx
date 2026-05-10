@@ -8,7 +8,7 @@ export default function ClusterLayout({
 }) {
   return (
     <Container>
-      <TopBar back={true} notifications={true} settings={false} />
+      <TopBar back={false} notifications={false} settings={false} />
       {children}
     </Container>
   );

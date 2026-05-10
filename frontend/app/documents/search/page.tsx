@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
+import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 import EventCard from "@/components/events/EventCard";
 import GoBackButton from "@/components/ui/GoBackButton";
+import { useUser } from "@/context/UserContext";
 import { Event, EventType } from "@/types/Event";
-import { Search } from "lucide-react";
+import { Search, Eye } from "lucide-react";
+
 import { API_BASE_URL as API } from "@/lib/api";
 
 const typeMap: Record<number, EventType> = {
@@ -22,6 +25,8 @@ const SEARCH_OPTIONS: { key: SearchType; label: string; placeholder: string; hin
 ];
 
 export default function DocumentSearchPage() {
+  const { isAdmin } = useUser();
+  const Layout = isAdmin ? ThreeColumnLayoutAdmin : ThreeColumnLayout;
   const [selectedType, setSelectedType] = useState<SearchType>(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Event[]>([]);
@@ -55,6 +60,19 @@ export default function DocumentSearchPage() {
     }
   };
 
+  const handleUnblur = async (id: number) => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/api/event/${id}/unblur`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setResults((prev) =>
+        prev.map((d) => d.id === id ? { ...d, originalImageUrl: null } : d)
+      );
+    }
+  };
+
   const handleTypeSelect = (type: SearchType) => {
     setSelectedType(type);
     setQuery("");
@@ -65,7 +83,7 @@ export default function DocumentSearchPage() {
   const currentOption = SEARCH_OPTIONS.find((o) => o.key === selectedType);
 
   return (
-    <ThreeColumnLayout>
+    <Layout>
       <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
 
         <div className="flex items-center gap-3 mb-6">
@@ -136,15 +154,25 @@ export default function DocumentSearchPage() {
         )}
 
         {results.map((doc) => (
-          <EventCard
-            key={doc.id}
-            event={{
-              ...doc,
-              imageUrl: doc.aiTags ? doc.imageUrl : null,
-            }}
-          />
+          <div key={doc.id}>
+            <EventCard
+              event={{
+                ...doc,
+                imageUrl: isAdmin ? doc.imageUrl : (doc.aiTags ? doc.imageUrl : null),
+              }}
+            />
+            {isAdmin && doc.originalImageUrl && (
+              <button
+                onClick={() => handleUnblur(doc.id)}
+                className="w-full flex items-center justify-center gap-2 mb-4 -mt-2 bg-yellow-primary/10 hover:bg-yellow-primary/20 border border-yellow-primary/40 text-yellow-primary font-semibold text-sm rounded-2xl px-4 py-3 transition-colors cursor-pointer"
+              >
+                <Eye size={16} />
+                Unblur for all users
+              </button>
+            )}
+          </div>
         ))}
       </div>
-    </ThreeColumnLayout>
+    </Layout>
   );
 }
