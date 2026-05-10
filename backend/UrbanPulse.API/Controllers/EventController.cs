@@ -184,7 +184,10 @@ namespace UrbanPulse.API.Controllers
                         {
                             if (aiTags != null) createdEvent.AiTags = aiTags;
                             if (redactionResult.RedactedImageUrl != null)
+                            {
+                                createdEvent.OriginalImageUrl = createdEvent.ImageUrl;
                                 createdEvent.ImageUrl = redactionResult.RedactedImageUrl;
+                            }
                             if (redactionResult.SearchIndex != null)
                                 createdEvent.SearchIndex = redactionResult.SearchIndex;
                             await db.SaveChangesAsync();
@@ -293,6 +296,7 @@ namespace UrbanPulse.API.Controllers
             if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
                 return Ok(new List<object>());
 
+            var isAdmin = User.IsInRole("Admin");
             var qUpper = q.ToUpper();
 
             var docs = await _context.Events
@@ -312,7 +316,7 @@ namespace UrbanPulse.API.Controllers
                 id = e.Id,
                 description = e.Description,
                 type = e.Type,
-                imageUrl = e.ImageUrl,
+                imageUrl = isAdmin && e.OriginalImageUrl != null ? e.OriginalImageUrl : e.ImageUrl,
                 aiTags = e.AiTags,
                 createdByUserId = e.CreatedByUserId,
                 createdByEmail = e.CreatedByUser?.Email,
@@ -329,6 +333,8 @@ namespace UrbanPulse.API.Controllers
         [HttpGet("documents")]
         public async Task<IActionResult> GetFoundDocuments()
         {
+            var isAdmin = User.IsInRole("Admin");
+
             var docs = await _context.Events
                 .Include(e => e.CreatedByUser)
                 .Where(e => e.IsActive && e.Type == EventType.FoundDocument)
@@ -340,7 +346,7 @@ namespace UrbanPulse.API.Controllers
                 id = e.Id,
                 description = e.Description,
                 type = e.Type,
-                imageUrl = e.ImageUrl,
+                imageUrl = isAdmin && e.OriginalImageUrl != null ? e.OriginalImageUrl : e.ImageUrl,
                 aiTags = e.AiTags,
                 createdByUserId = e.CreatedByUserId,
                 createdByEmail = e.CreatedByUser?.Email,
