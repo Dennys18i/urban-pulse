@@ -69,7 +69,7 @@ interface SafetyUserMarker {
   avatarUrl?: string;
   latitude: number;
   longitude: number;
-  safetyStatus: number; // 0=NoResponse, 1=Safe, 2=Injured, 3=NeedHelp, 4=AvailableToHelp
+  safetyStatus: number; 
 }
 
 const SAFETY_COLORS: Record<number, string> = {
@@ -271,6 +271,7 @@ export default function MapView() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [selectedSafetyUser, setSelectedSafetyUser] = useState<SafetyUserMarker | null>(null);
 
   const [safetyUsers, setSafetyUsers] = useState<SafetyUserMarker[]>([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -320,7 +321,10 @@ export default function MapView() {
     const token = localStorage.getItem("token");
     fetch(`${API}/api/user/profile`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
-      .then((d) => { if (d.latitude && d.longitude) setUserLocation({ lat: d.latitude, lng: d.longitude }); });
+      .then((d) => { 
+        if (d.latitude && d.longitude) setUserLocation({ lat: d.latitude, lng: d.longitude });
+        if (d.currentSafetyStatus) setMyStatus(d.currentSafetyStatus);
+      });
   }, [mounted]);
 
   useEffect(() => {
@@ -376,7 +380,6 @@ export default function MapView() {
     fetchEvents();
   }, [mounted]);
 
-  // Safety statuses fetch + SignalR updates
   useEffect(() => {
     if (!mounted || !isInCrisis) return;
     const token = localStorage.getItem("token");
@@ -388,7 +391,13 @@ export default function MapView() {
 
   useEffect(() => {
     if (!connection || !isInCrisis) return;
+    const userId = localStorage.getItem("userId");
+    const currentUserId = userId ? parseInt(userId) : null;
+    
     const onUpdate = (data: { userId: number; status: number; latitude?: number; longitude?: number }) => {
+      if (currentUserId === data.userId) {
+        setMyStatus(data.status);
+      }
       setSafetyUsers((prev) => {
         const existing = prev.find((u) => u.id === data.userId);
         if (existing) return prev.map((u) => u.id === data.userId ? { ...u, safetyStatus: data.status } : u);
@@ -492,7 +501,6 @@ export default function MapView() {
     }
   }, [activeUserMarkers, activeEventMarkers, handleUserClick, handleEventClick]);
 
-  // Safety markers rendering
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
@@ -504,15 +512,48 @@ export default function MapView() {
 
       if (!isInCrisis) return;
 
-      safetyUsers.forEach(({ id, latitude, longitude, safetyStatus }) => {
+      safetyUsers.forEach((safetyUser) => {
+        const { id, latitude, longitude, safetyStatus } = safetyUser;
         const color = SAFETY_COLORS[safetyStatus] ?? SAFETY_COLORS[0];
         const el = document.createElement("div");
-        el.style.cssText = `width:26px !important;height:26px !important;min-width:26px !important;min-height:26px !important;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 8px ${color}80;cursor:default;box-sizing:border-box;`;
+        
+        el.innerHTML = `
+          <div style="
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: ${color};
+            border: 3px solid white;
+            box-sizing: border-box;
+            box-shadow: 0 0 8px ${color}80;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+          "></div>
+          <style>
+            @keyframes pulse {
+              0%, 100% { box-shadow: 0 0 8px ${color}80, 0 0 0 0 ${color}40; }
+              50% { box-shadow: 0 0 8px ${color}80, 0 0 0 8px ${color}00; }
+            }
+          </style>
+        `;
+        
+        el.style.width = "26px";
+        el.style.height = "26px";
+        el.style.cursor = "pointer";
+        
         const seed = id * 9301 + 49297;
         const [dLng, dLat] = seededGeoOffset(seed);
         const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
           .setLngLat([longitude + dLng, latitude + dLat])
           .addTo(map);
+        
+        el.addEventListener("click", (e: Event) => {
+          e.stopPropagation();
+          setSelectedSafetyUser(safetyUser);
+          setSelectedUser(null);
+          setSelectedEvent(null);
+        });
+        
         safetyMarkersRef.current.push(marker);
       });
     };
@@ -632,6 +673,52 @@ export default function MapView() {
         />
       )}
       {selectedEvent && <EventCard event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
+      {selectedSafetyUser && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          onClick={() => setSelectedSafetyUser(null)}
+        >
+          <div
+            className="w-full max-w-md bg-[#111111] rounded-t-3xl px-6 py-8 border border-white/10 animate-fade-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-4 mb-6">
+              {selectedSafetyUser.avatarUrl ? (
+                <img 
+                  src={selectedSafetyUser.avatarUrl} 
+                  alt={selectedSafetyUser.fullName || "User"}
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
+                  <span className="text-2xl">👤</span>
+                </div>
+              )}
+              <div className="flex-1">
+                <h3 className="text-white font-bold text-lg">{selectedSafetyUser.fullName || "User"}</h3>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: SAFETY_COLORS[selectedSafetyUser.safetyStatus] || "#6b7280" }}
+                >
+                  {{
+                    0: "No response",
+                    1: "I'm safe ✓",
+                    2: "Injured 🚑",
+                    3: "Need help 🆘",
+                    4: "Available to help 🤝",
+                  }[selectedSafetyUser.safetyStatus] || "Unknown"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedSafetyUser(null)}
+              className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       {showStatusModal && (
         <SafetyCheckInModal
           onClose={() => setShowStatusModal(false)}
