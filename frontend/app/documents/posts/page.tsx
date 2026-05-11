@@ -8,8 +8,7 @@ import ThreeColumnLayout from "@/components/layout/ThreeColumnLayout";
 import ThreeColumnLayoutAdmin from "@/components/layout/ThreeColumnLayoutAdmin";
 import { useUser } from "@/context/UserContext";
 import { Event, EventType } from "@/types/Event";
-import { Search, Eye } from "lucide-react";
-
+import { Search } from "lucide-react";
 import { API_BASE_URL as API } from "@/lib/api";
 
 const typeMap: Record<number, EventType> = {
@@ -46,21 +45,6 @@ export default function DocumentPostsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleUnblur = async (id: number) => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API}/api/event/${id}/unblur`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      setDocs((prev) =>
-        prev.map((d) =>
-          d.id === id ? { ...d, originalImageUrl: null } : d
-        )
-      );
-    }
-  };
-
   useEffect(() => {
     const hasAnalyzing = docs.some((d) => !d.aiTags);
     if (!hasAnalyzing) return;
@@ -95,65 +79,55 @@ export default function DocumentPostsPage() {
       </div>
 
       <Layout>
-      <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
+        <div className="w-full pb-[8vh] lg:pb-0 flex flex-col mt-4">
+          <h1 className="hidden lg:block text-white font-black text-2xl font-montagu uppercase mb-4">
+            📄 Found Documents
+          </h1>
 
-        <h1 className="hidden lg:block text-white font-black text-2xl font-montagu uppercase mb-4">
-          📄 Found Documents
-        </h1>
-
-        <button
-          onClick={() => router.push("/documents/search")}
-          className="w-full flex items-center justify-between bg-blue/10 border border-blue/30 rounded-2xl px-5 py-4 mb-6 hover:bg-blue/20 transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <Search size={20} className="text-blue" />
-            <div className="text-left">
-              <p className="text-blue font-bold text-sm">Lost a document?</p>
-              <p className="text-white/40 text-xs">Search if someone found it</p>
-            </div>
-          </div>
-          <span className="text-blue/60 text-xs font-bold">Search →</span>
-        </button>
-
-        {loading && (
-          <p className="text-white/40 text-sm text-center mt-10">Loading...</p>
-        )}
-
-        {!loading && docs.length === 0 && (
-          <p className="text-white/40 text-sm text-center mt-10">
-            No found documents reported yet.
-          </p>
-        )}
-
-        {docs.map((doc) => (
-          <div key={doc.id}>
-            {!isAdmin && !doc.aiTags && (
-              <div className="w-full bg-blue/10 border border-blue/20 rounded-2xl px-4 py-3 mb-2 flex items-center gap-3 animate-pulse">
-                <span className="text-lg">🔒</span>
-                <div>
-                  <p className="text-blue font-bold text-sm">Securing your document...</p>
-                  <p className="text-white/40 text-xs">Blurring sensitive data before publishing</p>
-                </div>
+          <button
+            onClick={() => router.push("/documents/search")}
+            className="w-full flex items-center justify-between bg-blue/10 border border-blue/30 rounded-2xl px-5 py-4 mb-6 hover:bg-blue/20 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <Search size={20} className="text-blue" />
+              <div className="text-left">
+                <p className="text-blue font-bold text-sm">Lost a document?</p>
+                <p className="text-white/40 text-xs">Search if someone found it</p>
               </div>
-            )}
-            <EventCard
-              event={{
-                ...doc,
-                imageUrl: isAdmin ? doc.imageUrl : (doc.aiTags ? doc.imageUrl : null),
-              }}
-            />
-            {isAdmin && doc.originalImageUrl && (
-              <button
-                onClick={() => handleUnblur(doc.id)}
-                className="w-full flex items-center justify-center gap-2 mb-4 -mt-2 bg-yellow-primary/10 hover:bg-yellow-primary/20 border border-yellow-primary/40 text-yellow-primary font-semibold text-sm rounded-2xl px-4 py-3 transition-colors cursor-pointer"
-              >
-                <Eye size={16} />
-                Unblur for all users
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+            <span className="text-blue/60 text-xs font-bold">Search →</span>
+          </button>
+
+          {loading && (
+            <p className="text-white/40 text-sm text-center mt-10">Loading...</p>
+          )}
+
+          {!loading && docs.length === 0 && (
+            <p className="text-white/40 text-sm text-center mt-10">
+              No found documents reported yet.
+            </p>
+          )}
+
+          {docs.map((doc) => (
+            <div key={doc.id}>
+              {!doc.aiTags && (
+                <div className="w-full bg-blue/10 border border-blue/20 rounded-2xl px-4 py-3 mb-2 flex items-center gap-3 animate-pulse">
+                  <span className="text-lg">🔒</span>
+                  <div>
+                    <p className="text-blue font-bold text-sm">Securing your document...</p>
+                    <p className="text-white/40 text-xs">Blurring sensitive data before publishing</p>
+                  </div>
+                </div>
+              )}
+              <EventCard
+                event={{
+                  ...doc,
+                  imageUrl: doc.aiTags ? doc.imageUrl : null,
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </Layout>
     </>
   );
